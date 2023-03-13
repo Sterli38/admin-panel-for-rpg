@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>admin-panel-for-rpg</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>admin-panel-for-rpg</name>
     <description>admin-panel-for-rpg</description>
