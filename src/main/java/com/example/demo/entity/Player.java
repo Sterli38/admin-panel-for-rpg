@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Data
 public class Player {
-    private int id;
+    private long id;
     private String name;
     private String title;
     private Race race;
