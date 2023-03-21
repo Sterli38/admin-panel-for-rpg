@@ -9,7 +9,7 @@ public class DemoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
-        Player player = new Player();
+//        Player player = new Player();
     }
 
 }

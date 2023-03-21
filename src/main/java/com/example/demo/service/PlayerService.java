@@ -1,50 +1,47 @@
 package com.example.demo.service;
 
+import com.example.demo.dao.PlayerDao;
 import com.example.demo.dao.inMemory.InMemoryPlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.filter.Filter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PlayerService {
 
-    InMemoryPlayerDao inMemoryPlayerDao;
-
-    @Autowired
-    public PlayerService(InMemoryPlayerDao inMemoryPlayerDao) {
-        this.inMemoryPlayerDao = inMemoryPlayerDao;
-    }
+    private final PlayerDao playerDao;
 
     public List<Player> getPlayers() {
-        return inMemoryPlayerDao.getPlayers();
+        return playerDao.getPlayers();
     }
 
     public void createPlayer(Player player) {
         setCurrentLevel(player);
         setUntilNextLevel(player);
-        inMemoryPlayerDao.createPlayer(player);
+        playerDao.createPlayer(player);
     }
 
     public void editPlayer(Player player) {
         setCurrentLevel(player);
         setUntilNextLevel(player);
-        inMemoryPlayerDao.editPlayer(player);
+        playerDao.editPlayer(player);
     }
 
     public void deletePlayerById(long id) {
-        inMemoryPlayerDao.deletePlayerById(id);
+        playerDao.deletePlayerById(id);
     }
 
     public Player getPlayerById(long id) {
-        return inMemoryPlayerDao.getPlayerById(id);
+        return playerDao.getPlayerById(id);
     }
 
     public List<Player> getPlayersByFilter(Filter filter) {
-        return inMemoryPlayerDao.getPlayersByFilter(filter);
+        return playerDao.getPlayersByFilter(filter);
     }
 
     private void setCurrentLevel(Player player) {

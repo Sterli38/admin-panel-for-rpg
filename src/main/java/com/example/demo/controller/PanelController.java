@@ -1,52 +1,103 @@
 package com.example.demo.controller;
 
-import com.example.demo.dao.PlayerDao;
 import com.example.demo.entity.Player;
+import com.example.demo.entity.Profession;
+import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
+import com.example.demo.filter.PlayerOrder;
 import com.example.demo.service.PlayerService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-//@Controller
+
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping("/rest/players")
 public class PanelController {
-    private PlayerDao playerDao;
-    @GetMapping("/")
-    public String index(Model model) {
-        return "index";
+    private final PlayerService playerService;
+
+    @GetMapping
+    public List<Player> getPlayers(@RequestParam(required = false) String name,
+                                   @RequestParam(required = false) String title,
+                                   @RequestParam(required = false) Race race,
+                                   @RequestParam(required = false) Profession profession,
+                                   @RequestParam(required = false) Long after,
+                                   @RequestParam(required = false) Long before,
+                                   @RequestParam(required = false) Boolean baned,
+                                   @RequestParam(required = false) Integer minExperience,
+                                   @RequestParam(required = false) Integer maxExperience,
+                                   @RequestParam(required = false) Integer minLevel,
+                                   @RequestParam(required = false) Integer maxLevel,
+                                   @RequestParam(required = false) PlayerOrder playerOrder,
+                                   @RequestParam(required = false) Integer pageNumber,
+                                   @RequestParam(required = false) Integer pageSize) {
+        Filter filter = createFilter(name, title, race, profession, after, before, baned, minExperience, maxExperience,
+                minLevel, maxLevel, playerOrder, pageNumber, pageSize);
+        return playerService.getPlayersByFilter(filter);
     }
 
-    @GetMapping("/getPlayers")
-    public List<Player> getPlayers() {
-        return playerDao.getPlayers();
+    @GetMapping("/count")
+    public Integer getPlayersCount(@RequestParam(required = false) String name,
+                                   @RequestParam(required = false) String title,
+                                   @RequestParam(required = false) Race race,
+                                   @RequestParam(required = false) Profession profession,
+                                   @RequestParam(required = false) Long after,
+                                   @RequestParam(required = false) Long before,
+                                   @RequestParam(required = false) Boolean baned,
+                                   @RequestParam(required = false) Integer minExperience,
+                                   @RequestParam(required = false) Integer maxExperience,
+                                   @RequestParam(required = false) Integer minLevel,
+                                   @RequestParam(required = false) Integer maxLevel) {
+        Filter filter = createFilter(name, title, race, profession, after, before, baned, minExperience, maxExperience, minLevel,
+                maxLevel, null, null, null);
+        return playerService.getPlayersByFilter(filter).size();
+
     }
-    @PostMapping("/createPlayer")
+
+    private Filter createFilter(String name, String title, Race race, Profession profession, Long after,Long before,
+                                Boolean baned, Integer minExperience, Integer maxExperience, Integer minLevel,
+                                Integer maxLevel, PlayerOrder playerOrder, Integer pageNumber, Integer pageSize) {
+        Filter filter = new Filter();
+        filter.setName(name);
+        filter.setTitle(title);
+        filter.setRace(race);
+        filter.setProfession(profession);
+        filter.setAfter(after);
+        filter.setBefore(before);
+        filter.setBanned(baned);
+        filter.setMinExperience(minExperience);
+        filter.setMaxExperience(maxExperience);
+        filter.setMinLevel(minLevel);
+        filter.setMaxLevel(maxLevel);
+        filter.setOrder(playerOrder);
+        filter.setPageNumber(pageNumber);
+        filter.setPageSize(pageSize);
+        return filter;
+    }
+
+    @PostMapping
     public void createPlayer(@RequestBody Player player) {
-        playerDao.createPlayer(player);
+        playerService.createPlayer(player);
     }
 
-    @PatchMapping("/editPlayer")
-    public void editPlayer(@RequestBody Player player) {
-        playerDao.editPlayer(player);
+    @PostMapping("/{id}")
+    public void editPlayer(@PathVariable Long id, @RequestBody Player player) {
+        playerService.editPlayer(player);
     }
 
     @DeleteMapping("/deletePlayerById/{id}")
     public void deletePlayerById(@PathVariable long id) {
-        playerDao.deletePlayerById(id);
+        playerService.deletePlayerById(id);
     }
 
-    @GetMapping("/getPlayerById/{id}")
+    @GetMapping("/{id}")
     public Player getPlayerById(@PathVariable long id) {
-        return playerDao.getPlayerById(id);
+        return playerService.getPlayerById(id);
     }
 
     @GetMapping("/getPlayersByFilter")
     public List<Player> getPlayersByFilter(@RequestBody Filter filter) {
-        return playerDao.getPlayersByFilter(filter);
+        return playerService.getPlayersByFilter(filter);
     }
 }
