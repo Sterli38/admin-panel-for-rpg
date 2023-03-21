@@ -2,10 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.dao.inMemory.InMemoryPlayerDao;
 import com.example.demo.entity.Player;
+import com.example.demo.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class PlayerService {
 
     InMemoryPlayerDao inMemoryPlayerDao;
@@ -13,6 +17,10 @@ public class PlayerService {
     @Autowired
     public PlayerService(InMemoryPlayerDao inMemoryPlayerDao) {
         this.inMemoryPlayerDao = inMemoryPlayerDao;
+    }
+
+    public List<Player> getPlayers() {
+        return inMemoryPlayerDao.getPlayers();
     }
 
     public void createPlayer(Player player) {
@@ -27,16 +35,16 @@ public class PlayerService {
         inMemoryPlayerDao.editPlayer(player);
     }
 
-    public void deletePlayer(long id) {
+    public void deletePlayerById(long id) {
         inMemoryPlayerDao.deletePlayerById(id);
     }
 
-    public Player getPlayerById(int id) {
+    public Player getPlayerById(long id) {
         return inMemoryPlayerDao.getPlayerById(id);
     }
 
-    public List<Player> getPlayersByFilter() {
-        return null;
+    public List<Player> getPlayersByFilter(Filter filter) {
+        return inMemoryPlayerDao.getPlayersByFilter(filter);
     }
 
     private void setCurrentLevel(Player player) {

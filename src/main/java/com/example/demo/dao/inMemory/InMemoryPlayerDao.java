@@ -31,7 +31,7 @@ public class InMemoryPlayerDao implements PlayerDao {
         editForPlayer.setExperience(player.getExperience());
         editForPlayer.setLevel(player.getLevel());
         editForPlayer.setUntilNextLevel(player.getUntilNextLevel());
-        editForPlayer.setBirthday(player.getBirthday());
+//        editForPlayer.setBirthday(player.getBirthday());
         editForPlayer.setBanned(player.isBanned());
     }
 
@@ -45,7 +45,20 @@ public class InMemoryPlayerDao implements PlayerDao {
 
     public List<Player> getPlayersByFilter(Filter filter) {
         return players.values().stream()
+                .filter(player -> filter.getName() == null || player.getName() == filter.getName())
+                .filter(player -> filter.getTitle() == null || player.getTitle() == filter.getTitle())
+                .filter(player -> filter.getRace() == null || player.getRace() == filter.getRace())
+                .filter(player -> filter.getProfession() == null || player.getProfession() == filter.getProfession())
+//                .filter(player -> filter.getAfter() == null || player.get)
+//
                 .filter(player -> filter.getBanned() == null || player.isBanned() == filter.getBanned())
+//
+//
+//
+//
+//                .filter(player -> filter.getOrder() == null || )
+//
+//
                 .toList();
     }
 }
