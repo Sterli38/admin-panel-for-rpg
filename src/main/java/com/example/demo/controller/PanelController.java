@@ -52,7 +52,6 @@ public class PanelController {
         Filter filter = createFilter(name, title, race, profession, after, before, baned, minExperience, maxExperience, minLevel,
                 maxLevel, null, null, null);
         return playerService.getPlayersByFilter(filter).size();
-
     }
 
     private Filter createFilter(String name, String title, Race race, Profession profession, Long after,Long before,
@@ -81,23 +80,18 @@ public class PanelController {
         playerService.createPlayer(player);
     }
 
-    @PostMapping("/{id}")
-    public void editPlayer(@PathVariable Long id, @RequestBody Player player) {
-        playerService.editPlayer(player);
-    }
-
-    @DeleteMapping("/deletePlayerById/{id}")
-    public void deletePlayerById(@PathVariable long id) {
-        playerService.deletePlayerById(id);
-    }
-
     @GetMapping("/{id}")
-    public Player getPlayerById(@PathVariable long id) {
-        return playerService.getPlayerById(id);
+    public Player getPlayer(@PathVariable long id) {
+    return playerService.getPlayerById(id);
     }
 
-    @GetMapping("/getPlayersByFilter")
-    public List<Player> getPlayersByFilter(@RequestBody Filter filter) {
-        return playerService.getPlayersByFilter(filter);
+    @PostMapping("/{id}")
+    public void updatePlayer(@PathVariable Long id, @RequestBody Player player) {
+    playerService.editPlayer(id, player);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePlayer(@PathVariable long id) {
+    playerService.deletePlayerById(id);
     }
 }

@@ -26,10 +26,10 @@ public class PlayerService {
         playerDao.createPlayer(player);
     }
 
-    public void editPlayer(Player player) {
+    public void editPlayer(Long id, Player player) {
         setCurrentLevel(player);
         setUntilNextLevel(player);
-        playerDao.editPlayer(player);
+        playerDao.editPlayer(id ,player);
     }
 
     public void deletePlayerById(long id) {

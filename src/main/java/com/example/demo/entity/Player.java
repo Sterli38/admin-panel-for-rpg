@@ -17,6 +17,6 @@ public class Player {
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
-    private Date birthday;
+    private Long birthday;
     private Boolean banned;
 }

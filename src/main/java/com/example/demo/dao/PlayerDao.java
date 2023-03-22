@@ -10,7 +10,7 @@ public interface PlayerDao {
 
     void createPlayer(Player player);
 
-    void editPlayer(Player player);
+    void editPlayer(Long id, Player player);
 
     void deletePlayerById(long id);
 
