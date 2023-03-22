@@ -15,23 +15,24 @@ public class InMemoryPlayerDao implements PlayerDao {
 
     private final HashMap<Long, Player> players = new HashMap<>();
 
-    public InMemoryPlayerDao() {
-        Date date = new Date(System.currentTimeMillis());
-        Player player = new Player(1L, "Egor", "title" , Race.HUMAN, Profession.WARRIOR, 1000,
-                10, 5, date, false );
-        createPlayer(player);
-    }
+//    public InMemoryPlayerDao() {
+//
+//        Player player = new Player(idGenerate(), "Egor", "title" , Race.HUMAN, Profession.WARRIOR, 1000,
+//                10, 5, date, false );
+//        createPlayer(player);
+//    }
 
     public List<Player> getPlayers() {
         return new ArrayList<Player>(players.values());
     }
 
     public void createPlayer(Player player) {
+        player.setId(idGenerate());
         players.put(player.getId(), player);
     }
 
-    public void editPlayer(Player player) {
-        Player editForPlayer = getPlayerById(player.getId());
+    public void editPlayer(Long id, Player player) {
+        Player editForPlayer = getPlayerById(id);
         editForPlayer.setName(player.getName());
         editForPlayer.setTitle(player.getTitle());
         editForPlayer.setRace(player.getRace());
@@ -39,7 +40,7 @@ public class InMemoryPlayerDao implements PlayerDao {
         editForPlayer.setExperience(player.getExperience());
         editForPlayer.setLevel(player.getLevel());
         editForPlayer.setUntilNextLevel(player.getUntilNextLevel());
-//        editForPlayer.setBirthday(player.getBirthday());
+        editForPlayer.setBirthday(player.getBirthday());
         editForPlayer.setBanned(player.getBanned());
     }
 
@@ -57,16 +58,21 @@ public class InMemoryPlayerDao implements PlayerDao {
                 .filter(player -> filter.getTitle() == null || player.getTitle().equals(filter.getTitle()))
                 .filter(player -> filter.getRace() == null || player.getRace() == filter.getRace())
                 .filter(player -> filter.getProfession() == null || player.getProfession() == filter.getProfession())
-//                .filter(player -> filter.getAfter() == null || player.get)
-//
-                .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
-//
-//
-//
-//
-//                .filter(player -> filter.getOrder() == null || )
-//
-//
+                .filter(player -> filter.getAfter() == null && filter.getBefore() == null || player.getBirthday()
+                        >= filter.getAfter() && player.getBirthday() <= filter.getBefore())
+//                .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
+                .filter(player -> filter.getMinExperience() == null && filter.getMaxExperience() == null ||
+                        player.getExperience() >= filter.getMinExperience() && player.getExperience() <=
+                        filter.getMaxExperience())
+                .filter(player -> filter.getMinLevel() == null && filter.getMaxLevel() == null || player.getLevel() >=
+                        filter.getMinLevel() && player.getLevel() <= filter.getMaxLevel())
+
                 .toList();
+    }
+
+    private Long idGenerate() {
+        Long min = 0L;
+        Long max = 1000000000000000000L;
+        return min + (int)(Math.random() * ((max - min) + 1));
     }
 }
