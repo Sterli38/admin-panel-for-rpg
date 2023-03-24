@@ -14,21 +14,49 @@ import java.util.*;
 public class InMemoryPlayerDao implements PlayerDao {
 
     private final HashMap<Long, Player> players = new HashMap<>();
+    private long idGenerator = 0;
 
-//    public InMemoryPlayerDao() {
-//
-//        Player player = new Player(idGenerate(), "Egor", "title" , Race.HUMAN, Profession.WARRIOR, 1000,
-//                10, 5, date, false );
-//        createPlayer(player);
-//    }
+    public InMemoryPlayerDao() {
+        Long date = 1679639551000L;
+        Player player = new Player();
+        player.setName("Egor");
+        player.setTitle("Title");
+        player.setRace(Race.HUMAN);
+        player.setProfession(Profession.WARRIOR);
+        player.setExperience(1000);
+        player.setLevel(5);
+        player.setUntilNextLevel(10);
+        player.setBirthday(date);
+        player.setBanned(true);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+        createPlayer(player);
+
+
+    }
 
     public List<Player> getPlayers() {
         return new ArrayList<Player>(players.values());
     }
 
     public void createPlayer(Player player) {
-        player.setId(idGenerate());
+        player.setId(idGenerator);
         players.put(player.getId(), player);
+        idGenerator++;
     }
 
     public void editPlayer(Long id, Player player) {
@@ -58,15 +86,16 @@ public class InMemoryPlayerDao implements PlayerDao {
                 .filter(player -> filter.getTitle() == null || player.getTitle().equals(filter.getTitle()))
                 .filter(player -> filter.getRace() == null || player.getRace() == filter.getRace())
                 .filter(player -> filter.getProfession() == null || player.getProfession() == filter.getProfession())
-                .filter(player -> filter.getAfter() == null && filter.getBefore() == null || player.getBirthday()
-                        >= filter.getAfter() && player.getBirthday() <= filter.getBefore())
-//                .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
+                .filter(player -> filter.getAfter() == null && filter.getBefore() == null ||
+                        player.getBirthday() >= filter.getAfter() && player.getBirthday() <= filter.getBefore())
+                .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
                 .filter(player -> filter.getMinExperience() == null && filter.getMaxExperience() == null ||
-                        player.getExperience() >= filter.getMinExperience() && player.getExperience() <=
-                        filter.getMaxExperience())
-                .filter(player -> filter.getMinLevel() == null && filter.getMaxLevel() == null || player.getLevel() >=
-                        filter.getMinLevel() && player.getLevel() <= filter.getMaxLevel())
-
+                        player.getExperience() >= filter.getMinExperience() &&
+                                player.getExperience() <= filter.getMaxExperience())
+                .filter(player -> filter.getMinLevel() == null && filter.getMaxLevel() == null ||
+                        player.getLevel() >= filter.getMinLevel() && player.getLevel() <= filter.getMaxLevel())
+                .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber() - 1) * filter.getPageSize()))
+                .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
                 .toList();
     }
 

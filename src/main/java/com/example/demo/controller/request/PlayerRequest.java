@@ -1,14 +1,12 @@
-package com.example.demo.entity;
+package com.example.demo.controller.request;
 
-import lombok.AllArgsConstructor;
+import com.example.demo.entity.Profession;
+import com.example.demo.entity.Race;
 import lombok.Data;
-
-import java.util.Date;
-import java.util.Objects;
+import lombok.Value;
 
 @Data
-public class Player {
-    private Long id;
+public class PlayerRequest {
     private String name;
     private String title;
     private Race race;

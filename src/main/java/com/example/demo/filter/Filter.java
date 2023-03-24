@@ -4,6 +4,8 @@ import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class Filter {
     private String name;

@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.controller.request.CreatePlayerRequest;
+import com.example.demo.controller.request.PlayerRequest;
+import com.example.demo.controller.request.UpdatePlayerRequest;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
@@ -9,6 +12,8 @@ import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -24,7 +29,7 @@ public class PanelController {
                                    @RequestParam(required = false) Profession profession,
                                    @RequestParam(required = false) Long after,
                                    @RequestParam(required = false) Long before,
-                                   @RequestParam(required = false) Boolean baned,
+                                   @RequestParam(required = false) Boolean banned,
                                    @RequestParam(required = false) Integer minExperience,
                                    @RequestParam(required = false) Integer maxExperience,
                                    @RequestParam(required = false) Integer minLevel,
@@ -32,7 +37,7 @@ public class PanelController {
                                    @RequestParam(required = false) PlayerOrder playerOrder,
                                    @RequestParam(required = false) Integer pageNumber,
                                    @RequestParam(required = false) Integer pageSize) {
-        Filter filter = createFilter(name, title, race, profession, after, before, baned, minExperience, maxExperience,
+        Filter filter = createFilter(name, title, race, profession, after, before, banned, minExperience, maxExperience,
                 minLevel, maxLevel, playerOrder, pageNumber, pageSize);
         return playerService.getPlayersByFilter(filter);
     }
@@ -54,8 +59,8 @@ public class PanelController {
         return playerService.getPlayersByFilter(filter).size();
     }
 
-    private Filter createFilter(String name, String title, Race race, Profession profession, Long after,Long before,
-                                Boolean baned, Integer minExperience, Integer maxExperience, Integer minLevel,
+    private Filter createFilter(String name, String title, Race race, Profession profession, Long after, Long before,
+                                Boolean banned, Integer minExperience, Integer maxExperience, Integer minLevel,
                                 Integer maxLevel, PlayerOrder playerOrder, Integer pageNumber, Integer pageSize) {
         Filter filter = new Filter();
         filter.setName(name);
@@ -64,7 +69,7 @@ public class PanelController {
         filter.setProfession(profession);
         filter.setAfter(after);
         filter.setBefore(before);
-        filter.setBanned(baned);
+        filter.setBanned(banned);
         filter.setMinExperience(minExperience);
         filter.setMaxExperience(maxExperience);
         filter.setMinLevel(minLevel);
@@ -76,8 +81,8 @@ public class PanelController {
     }
 
     @PostMapping
-    public void createPlayer(@RequestBody Player player) {
-        playerService.createPlayer(player);
+    public void createPlayer(@RequestBody CreatePlayerRequest createPlayerRequest) {
+        playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
     }
 
     @GetMapping("/{id}")
@@ -86,12 +91,26 @@ public class PanelController {
     }
 
     @PostMapping("/{id}")
-    public void updatePlayer(@PathVariable Long id, @RequestBody Player player) {
-    playerService.editPlayer(id, player);
+    public void updatePlayer(@PathVariable Long id, @RequestBody UpdatePlayerRequest updatePlayerRequest) {
+        playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
     }
 
     @DeleteMapping("/{id}")
     public void deletePlayer(@PathVariable long id) {
     playerService.deletePlayerById(id);
+    }
+
+    private Player convertCreatePlayerRequest(PlayerRequest playerRequest) {
+        Player player = new Player();
+        player.setName(playerRequest.getName());
+        player.setTitle(playerRequest.getTitle());
+        player.setRace(playerRequest.getRace());
+        player.setProfession(playerRequest.getProfession());
+        player.setExperience(playerRequest.getExperience());
+        player.setLevel(playerRequest.getLevel());
+        player.setUntilNextLevel(playerRequest.getUntilNextLevel());
+        player.setBirthday(playerRequest.getBirthday());
+        player.setBanned(playerRequest.getBanned());
+        return player;
     }
 }
