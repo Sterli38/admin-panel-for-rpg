@@ -5,6 +5,8 @@ import com.example.demo.entity.Race;
 import lombok.Data;
 import lombok.Value;
 
+import java.util.Date;
+
 @Data
 public class PlayerRequest {
     private String name;
@@ -14,6 +16,6 @@ public class PlayerRequest {
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
-    private Long birthday;
+    private Date birthday;
     private Boolean banned;
 }

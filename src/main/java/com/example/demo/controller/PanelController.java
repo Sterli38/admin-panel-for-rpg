@@ -109,7 +109,7 @@ public class PanelController {
         player.setExperience(playerRequest.getExperience());
         player.setLevel(playerRequest.getLevel());
         player.setUntilNextLevel(playerRequest.getUntilNextLevel());
-        player.setBirthday(playerRequest.getBirthday());
+        player.setBirthday(playerRequest.getBirthday().getTime());
         player.setBanned(playerRequest.getBanned());
         return player;
     }

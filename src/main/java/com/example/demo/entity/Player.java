@@ -3,8 +3,10 @@ package com.example.demo.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 @Data
 public class Player {
@@ -16,6 +18,14 @@ public class Player {
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
-    private Long birthday;
+    private Date birthday;
     private Boolean banned;
+
+    public void setBirthday(Long unixTime) {
+        this.birthday = new Date(unixTime * 1000L);
+    }
+
+    public Long getBirthday() {
+        return birthday.getTime() / 1000L;
+    }
 }
