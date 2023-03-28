@@ -86,7 +86,6 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
     @Test
     void createPlayerTest() {
         Player expectedPlayer = new Player();
-        expectedPlayer.setId(2L);
         expectedPlayer.setName("Michael");
         expectedPlayer.setTitle("Title");
         expectedPlayer.setRace(Race.HUMAN);
@@ -97,7 +96,6 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer.setBirthday(1679935186L);
         expectedPlayer.setBanned(true);
         Player newPLayer = new Player();
-        newPLayer.setId(2L);
         newPLayer.setName("Michael");
         newPLayer.setTitle("Title");
         newPLayer.setRace(Race.HUMAN);
@@ -107,8 +105,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         newPLayer.setUntilNextLevel(200);
         newPLayer.setBirthday(1679935186L);
         newPLayer.setBanned(true);
-        playerDao.createPlayer(newPLayer);
-        Assertions.assertEquals(expectedPlayer, playerDao.getPlayerById(2));
+        Player player2 = playerDao.createPlayer(newPLayer);
+        expectedPlayer.setId(player2.getId());
+        Assertions.assertEquals(expectedPlayer, playerDao.getPlayerById(expectedPlayer.getId()));
     }
 
     @Test

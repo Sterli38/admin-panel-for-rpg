@@ -22,10 +22,10 @@ public class Player {
     private Boolean banned;
 
     public void setBirthday(Long unixTime) {
-        this.birthday = new Date(unixTime * 1000L);
+        this.birthday = new Date(unixTime);
     }
 
     public Long getBirthday() {
-        return birthday.getTime() / 1000L;
+        return birthday.getTime();
     }
 }

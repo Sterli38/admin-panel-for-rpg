@@ -12,6 +12,7 @@ import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +82,7 @@ public class PanelController {
     }
 
     @PostMapping
-    public void createPlayer(@RequestBody CreatePlayerRequest createPlayerRequest) {
+    public void createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
         playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
     }
 
@@ -91,7 +92,7 @@ public class PanelController {
     }
 
     @PostMapping("/{id}")
-    public void updatePlayer(@PathVariable Long id, @RequestBody UpdatePlayerRequest updatePlayerRequest) {
+    public void updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
         playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
     }
 
@@ -113,4 +114,5 @@ public class PanelController {
         player.setBanned(playerRequest.getBanned());
         return player;
     }
+
 }

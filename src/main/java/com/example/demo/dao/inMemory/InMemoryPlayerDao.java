@@ -54,10 +54,11 @@ public class InMemoryPlayerDao implements PlayerDao {
         return new ArrayList<Player>(players.values());
     }
 
-    public void createPlayer(Player player) {
+    public Player createPlayer(Player player) {
         player.setId(idGenerator);
         players.put(player.getId(), player);
         idGenerator++;
+        return player;
     }
 
     public void editPlayer(Long id, Player player) {
