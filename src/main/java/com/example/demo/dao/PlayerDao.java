@@ -8,7 +8,7 @@ import java.util.List;
 public interface PlayerDao {
     List<Player> getPlayers();
 
-    void createPlayer(Player player);
+    Player createPlayer(Player player);
 
     void editPlayer(Long id, Player player);
 
