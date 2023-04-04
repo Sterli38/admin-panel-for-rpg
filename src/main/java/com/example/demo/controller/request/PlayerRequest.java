@@ -28,10 +28,6 @@ public class PlayerRequest {
     @NotNull
     private Integer experience;
     @NotNull
-    private Integer level;
-    @NotNull
-    private Integer untilNextLevel;
-    @NotNull
     private Date birthday;
     @NotNull
     private Boolean banned;

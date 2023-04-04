@@ -4,7 +4,9 @@ import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import lombok.Data;
 
-import java.util.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 
 @Data
 public class Filter {

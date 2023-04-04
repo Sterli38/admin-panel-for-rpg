@@ -8,15 +8,20 @@ import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
 import com.example.demo.filter.PlayerOrder;
+import com.example.demo.service.PlayerError;
 import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/rest/players")
@@ -28,18 +33,19 @@ public class PanelController {
                                    @RequestParam(required = false) String title,
                                    @RequestParam(required = false) Race race,
                                    @RequestParam(required = false) Profession profession,
-                                   @RequestParam(required = false) Long after,
-                                   @RequestParam(required = false) Long before,
+                                   @RequestParam(required = false) @Min(1999) Long after,
+                                   @RequestParam(required = false) @Max(3001) Long before,
                                    @RequestParam(required = false) Boolean banned,
-                                   @RequestParam(required = false) Integer minExperience,
-                                   @RequestParam(required = false) Integer maxExperience,
+                                   @RequestParam(required = false) @Min(-1) Integer minExperience,
+                                   @RequestParam(required = false) @Max(10000001) Integer maxExperience,
                                    @RequestParam(required = false) Integer minLevel,
                                    @RequestParam(required = false) Integer maxLevel,
-                                   @RequestParam(required = false) PlayerOrder playerOrder,
-                                   @RequestParam(required = false) Integer pageNumber,
-                                   @RequestParam(required = false) Integer pageSize) {
+//                                   @RequestParam(required = false, defaultValue = "id") PlayerOrder order,
+                                   @RequestParam(required = false) PlayerOrder order,
+                                   @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
+                                   @RequestParam(required = false, defaultValue = "3") Integer pageSize) {
         Filter filter = createFilter(name, title, race, profession, after, before, banned, minExperience, maxExperience,
-                minLevel, maxLevel, playerOrder, pageNumber, pageSize);
+                minLevel, maxLevel, order, pageNumber, pageSize);
         return playerService.getPlayersByFilter(filter);
     }
 
@@ -82,23 +88,43 @@ public class PanelController {
     }
 
     @PostMapping
-    public void createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
-        playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
+    public ResponseEntity<?> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
+        try {
+            playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch(Exception e ) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/{id}")
-    public Player getPlayer(@PathVariable long id) {
-    return playerService.getPlayerById(id);
+    public ResponseEntity<Player> getPlayer(@PathVariable long id) {
+//        try {
+            Player player = playerService.getPlayerById(id);
+            return new ResponseEntity<>(player, HttpStatus.OK);
+//        } catch(Exception e) {
+//            return new ResponseEntity<>(new PlayerError(HttpStatus.BAD_REQUEST, "Игрок с таким id не найден").getStatusCode());
+//        }
     }
 
     @PostMapping("/{id}")
-    public void updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
-        playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
+    public ResponseEntity<?> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
+        try {
+            playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deletePlayer(@PathVariable long id) {
-    playerService.deletePlayerById(id);
+    public ResponseEntity<?> deletePlayer(@PathVariable long id) {
+        try {
+            playerService.deletePlayerById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     private Player convertCreatePlayerRequest(PlayerRequest playerRequest) {
@@ -108,11 +134,8 @@ public class PanelController {
         player.setRace(playerRequest.getRace());
         player.setProfession(playerRequest.getProfession());
         player.setExperience(playerRequest.getExperience());
-        player.setLevel(playerRequest.getLevel());
-        player.setUntilNextLevel(playerRequest.getUntilNextLevel());
         player.setBirthday(playerRequest.getBirthday().getTime());
         player.setBanned(playerRequest.getBanned());
         return player;
     }
-
 }
