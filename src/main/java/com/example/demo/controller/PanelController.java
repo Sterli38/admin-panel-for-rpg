@@ -11,6 +11,7 @@ import com.example.demo.filter.PlayerOrder;
 import com.example.demo.service.PlayerError;
 import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -33,15 +34,14 @@ public class PanelController {
                                    @RequestParam(required = false) String title,
                                    @RequestParam(required = false) Race race,
                                    @RequestParam(required = false) Profession profession,
-                                   @RequestParam(required = false) @Min(1999) Long after,
-                                   @RequestParam(required = false) @Max(3001) Long before,
+                                   @RequestParam(required = false) @Min(915148800L) Long after,
+                                   @RequestParam(required = false) @Max(32535216000L) Long before,
                                    @RequestParam(required = false) Boolean banned,
                                    @RequestParam(required = false) @Min(-1) Integer minExperience,
                                    @RequestParam(required = false) @Max(10000001) Integer maxExperience,
                                    @RequestParam(required = false) Integer minLevel,
                                    @RequestParam(required = false) Integer maxLevel,
-//                                   @RequestParam(required = false, defaultValue = "id") PlayerOrder order,
-                                   @RequestParam(required = false) PlayerOrder order,
+                                   @RequestParam(required = false, defaultValue = PlayerOrder.Names.ID) PlayerOrder order,
                                    @RequestParam(required = false, defaultValue = "0") Integer pageNumber,
                                    @RequestParam(required = false, defaultValue = "3") Integer pageSize) {
         Filter filter = createFilter(name, title, race, profession, after, before, banned, minExperience, maxExperience,
@@ -56,12 +56,12 @@ public class PanelController {
                                    @RequestParam(required = false) Profession profession,
                                    @RequestParam(required = false) Long after,
                                    @RequestParam(required = false) Long before,
-                                   @RequestParam(required = false) Boolean baned,
+                                   @RequestParam(required = false) Boolean banned,
                                    @RequestParam(required = false) Integer minExperience,
                                    @RequestParam(required = false) Integer maxExperience,
                                    @RequestParam(required = false) Integer minLevel,
                                    @RequestParam(required = false) Integer maxLevel) {
-        Filter filter = createFilter(name, title, race, profession, after, before, baned, minExperience, maxExperience, minLevel,
+        Filter filter = createFilter(name, title, race, profession, after, before, banned, minExperience, maxExperience, minLevel,
                 maxLevel, null, null, null);
         return playerService.getPlayersByFilter(filter).size();
     }
@@ -88,7 +88,7 @@ public class PanelController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
+    public ResponseEntity<Player> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
         try {
             playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -108,7 +108,7 @@ public class PanelController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
         try {
             playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
             return new ResponseEntity<>(HttpStatus.OK);
@@ -118,7 +118,7 @@ public class PanelController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePlayer(@PathVariable long id) {
+    public ResponseEntity<Player> deletePlayer(@PathVariable long id) {
         try {
             playerService.deletePlayerById(id);
             return new ResponseEntity<>(HttpStatus.OK);
