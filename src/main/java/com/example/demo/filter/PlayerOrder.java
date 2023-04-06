@@ -7,8 +7,11 @@ public enum PlayerOrder {
     BIRTHDAY("birthday"),
     LEVEL("level");
 
-    private final String fieldName;
+    public class Names {
+        public static final String ID = "ID";
+    }
 
+    private final String fieldName;
     PlayerOrder(String fieldName) {
         this.fieldName = fieldName;
     }
