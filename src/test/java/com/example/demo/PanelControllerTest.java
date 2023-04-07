@@ -53,7 +53,7 @@ public class PanelControllerTest {
         playerVasiliy.setRace(Race.HUMAN);
         playerVasiliy.setProfession(Profession.WARRIOR);
         playerVasiliy.setExperience(1000);
-        playerVasiliy.setBirthday(1609874962L);
+        playerVasiliy.setBirthday(1609874962000L);
         playerVasiliy.setBanned(true);
         playerGeorgy = new Player();
         playerGeorgy.setName("Georgy");
@@ -61,7 +61,7 @@ public class PanelControllerTest {
         playerGeorgy.setRace(Race.ORC);
         playerGeorgy.setProfession(Profession.WARRIOR);
         playerGeorgy.setExperience(987);
-        playerGeorgy.setBirthday(1672946962L);
+        playerGeorgy.setBirthday(1672946962000L);
         playerGeorgy.setBanned(true);
         playerLena = new Player();
         playerLena.setName("Lena");
@@ -69,7 +69,7 @@ public class PanelControllerTest {
         playerLena.setRace(Race.HUMAN);
         playerLena.setProfession(Profession.PALADIN);
         playerLena.setExperience(1500);
-        playerLena.setBirthday(1670941959L);
+        playerLena.setBirthday(1670941959000L);
         playerLena.setBanned(false);
     }
     @BeforeEach
@@ -175,7 +175,7 @@ public class PanelControllerTest {
                      .andExpect(jsonPath("$.experience").value(1000))
                      .andExpect(jsonPath("$.level").value(4))
                      .andExpect(jsonPath("$.untilNextLevel").value(500))
-                     .andExpect(jsonPath("$.birthday").value(1609874962L))
+                     .andExpect(jsonPath("$.birthday").value(1609874962000L))
                      .andExpect(jsonPath("$.banned").value(true));
     }
 
@@ -187,7 +187,7 @@ public class PanelControllerTest {
         playerForUpdate.setRace(Race.ELF);
         playerForUpdate.setProfession(Profession.SORCERER);
         playerForUpdate.setExperience(2000);
-        playerForUpdate.setBirthday(167963955100L);
+        playerForUpdate.setBirthday(167963955100000L);
         playerForUpdate.setBanned(false);
 
         this.mockMvc.perform(post("/rest/players/{id}", idVasiliy)
