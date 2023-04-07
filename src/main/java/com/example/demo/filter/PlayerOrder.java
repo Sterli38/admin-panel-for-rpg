@@ -8,7 +8,6 @@ public enum PlayerOrder {
     LEVEL("level");
 
     private final String fieldName;
-
     PlayerOrder(String fieldName) {
         this.fieldName = fieldName;
     }
