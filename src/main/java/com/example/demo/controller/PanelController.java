@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreatePlayerRequest;
 import com.example.demo.controller.request.PlayerRequest;
 import com.example.demo.controller.request.UpdatePlayerRequest;
+import com.example.demo.dao.inMemory.InMemoryPlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
@@ -89,9 +90,15 @@ public class PanelController {
 
     @PostMapping
     public ResponseEntity<Player> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
+        Filter filter = new Filter();
+        filter.setName(createPlayerRequest.getName());
+        filter.setTitle(createPlayerRequest.getTitle());
+        filter.setRace(createPlayerRequest.getRace());
         try {
             playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            List<Player> players = playerService.getPlayersByFilter(filter);
+            Player player = players.get(0);
+            return new ResponseEntity<>(player, HttpStatus.CREATED);
         } catch(Exception e ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -111,7 +118,8 @@ public class PanelController {
     public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
         try {
             playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
-            return new ResponseEntity<>(HttpStatus.OK);
+            Player player = getPlayer(id).getBody();
+            return new ResponseEntity<>(player, HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
