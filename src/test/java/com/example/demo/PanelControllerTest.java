@@ -2,6 +2,7 @@ package com.example.demo;
 
 
 import com.example.demo.controller.PanelController;
+import com.example.demo.dao.PlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
@@ -36,15 +37,14 @@ public class PanelControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     PlayerService service;
+    @Autowired
+    PlayerDao dao;
     private Long idVasiliy;
     private Long idGeorgy;
     private Long idLena;
     private static Player playerVasiliy = new Player();
     private static Player playerGeorgy = new Player();
     private static Player playerLena = new Player();
-    private static Player player;
-    private static Player updateForPlayer;
-    private static Player PlayerForUpdate;
 
     @BeforeAll
     public static void createPlayer() {
@@ -87,10 +87,7 @@ public class PanelControllerTest {
     @AfterEach
     public void deletePlayer() {
         try {
-            service.deletePlayerById(idVasiliy);
-            service.deletePlayerById(idGeorgy);
-            service.deletePlayerById(idLena);
-            service.deletePlayerById(player.getId());
+            dao.clear();
         } catch (Exception ignore) {
         }
     }
@@ -170,7 +167,7 @@ public class PanelControllerTest {
 
     @Test
     public void createPlayerTest() throws Exception {
-        player = new Player();
+        Player player = new Player();
         player.setName("player");
         player.setTitle("Title");
         player.setRace(Race.HUMAN);
@@ -211,8 +208,18 @@ public class PanelControllerTest {
 
     @Test
     public void updatePlayerTest() throws Exception {
-        PlayerForUpdate = new Player();
-        updateForPlayer = new Player();
+        Player playerGeorgyClone = new Player();
+        Player updateForPlayer = new Player();
+        playerGeorgyClone.setId(Long.MAX_VALUE);
+        playerGeorgyClone.setName(playerGeorgy.getName());
+        playerGeorgyClone.setTitle(playerGeorgy.getTitle());
+        playerGeorgyClone.setRace(playerGeorgy.getRace());
+        playerGeorgyClone.setProfession(playerGeorgy.getProfession());
+        playerGeorgyClone.setExperience(playerGeorgy.getExperience());
+        playerGeorgyClone.setBirthday(playerGeorgy.getBirthday());
+        playerGeorgyClone.setBanned(playerGeorgy.getBanned());
+        service.createPlayer(playerGeorgyClone);
+        updateForPlayer.setId(playerGeorgyClone.getId());
         updateForPlayer.setName("Mickey");
         updateForPlayer.setTitle("new Title");
         updateForPlayer.setRace(Race.ELF);
@@ -221,15 +228,7 @@ public class PanelControllerTest {
         updateForPlayer.setBirthday(167963955100000L);
         updateForPlayer.setBanned(false);
 
-        PlayerForUpdate.setName("Petya");
-        PlayerForUpdate.setTitle("Title");
-        PlayerForUpdate.setRace(Race.ELF);
-        PlayerForUpdate.setProfession(Profession.SORCERER);
-        PlayerForUpdate.setExperience(1000);
-        PlayerForUpdate.setBirthday(167963955100000L);
-        PlayerForUpdate.setBanned(true);
-
-        this.mockMvc.perform(post("/rest/players/{id}", PlayerForUpdate.getId())
+        this.mockMvc.perform(post("/rest/players/{id}", playerGeorgyClone.getId())
                         .content(objectMapper.writeValueAsString(updateForPlayer))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -250,8 +249,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(delete("/rest/players/{id}", idVasiliy))
                 .andExpect(status().isOk());
 
-        this.mockMvc.perform(get("/rest/players/"))
-                .andExpect(status().isOk()).andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena))));
+        this.mockMvc.perform(get("/rest/players/{id}", idVasiliy))
+                .andExpect(status().isNotFound());
     }
 }
