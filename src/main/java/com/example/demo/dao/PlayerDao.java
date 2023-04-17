@@ -12,9 +12,11 @@ public interface PlayerDao {
 
     void editPlayer(Long id, Player player);
 
-    void deletePlayerById(long id);
+    Player deletePlayerById(long id);
 
     Player getPlayerById(long id);
 
     List<Player> getPlayersByFilter(Filter filter);
+
+    void clear();
 }
