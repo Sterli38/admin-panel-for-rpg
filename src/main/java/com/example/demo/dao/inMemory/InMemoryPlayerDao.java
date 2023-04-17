@@ -116,8 +116,8 @@ public class InMemoryPlayerDao implements PlayerDao {
         }
     }
 
-    public void deletePlayerById(long id) {
-        players.remove(id);
+    public Player deletePlayerById(long id) {
+        return players.remove(id);
     }
 
     public Player getPlayerById(long id) {
@@ -142,5 +142,9 @@ public class InMemoryPlayerDao implements PlayerDao {
                 .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber()) * filter.getPageSize()))
                 .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
                 .toList();
+    }
+
+    public void clear() {
+        players.clear();
     }
 }
