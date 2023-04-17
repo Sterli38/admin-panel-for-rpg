@@ -90,14 +90,8 @@ public class PanelController {
 
     @PostMapping
     public ResponseEntity<Player> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
-        Filter filter = new Filter();
-        filter.setName(createPlayerRequest.getName());
-        filter.setTitle(createPlayerRequest.getTitle());
-        filter.setRace(createPlayerRequest.getRace());
         try {
-            playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
-            List<Player> players = playerService.getPlayersByFilter(filter);
-            Player player = players.get(0);
+            Player player = playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
             return new ResponseEntity<>(player, HttpStatus.CREATED);
         } catch(Exception e ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -108,7 +102,11 @@ public class PanelController {
     public ResponseEntity<Player> getPlayer(@PathVariable long id) {
 //        try {
             Player player = playerService.getPlayerById(id);
-            return new ResponseEntity<>(player, HttpStatus.OK);
+            if(player != null) {
+                return new ResponseEntity<>(player, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 //        } catch(Exception e) {
 //            return new ResponseEntity<>(new PlayerError(HttpStatus.BAD_REQUEST, "Игрок с таким id не найден").getStatusCode());
 //        }
@@ -123,16 +121,18 @@ public class PanelController {
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+//    playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
+//    return getPlayer(id).getBody();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Player> deletePlayer(@PathVariable long id) {
-        try {
-            playerService.deletePlayerById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+            Player player = playerService.deletePlayerById(id);
+            if(player != null) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
     }
 
     private Player convertCreatePlayerRequest(PlayerRequest playerRequest) {
