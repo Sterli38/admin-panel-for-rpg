@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreatePlayerRequest;
 import com.example.demo.controller.request.PlayerRequest;
 import com.example.demo.controller.request.UpdatePlayerRequest;
+import com.example.demo.dao.inMemory.InMemoryPlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
@@ -90,8 +91,8 @@ public class PanelController {
     @PostMapping
     public ResponseEntity<Player> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
         try {
-            playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            Player player = playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
+            return new ResponseEntity<>(player, HttpStatus.CREATED);
         } catch(Exception e ) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -101,7 +102,11 @@ public class PanelController {
     public ResponseEntity<Player> getPlayer(@PathVariable long id) {
 //        try {
             Player player = playerService.getPlayerById(id);
-            return new ResponseEntity<>(player, HttpStatus.OK);
+            if(player != null) {
+                return new ResponseEntity<>(player, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 //        } catch(Exception e) {
 //            return new ResponseEntity<>(new PlayerError(HttpStatus.BAD_REQUEST, "Игрок с таким id не найден").getStatusCode());
 //        }
@@ -111,20 +116,23 @@ public class PanelController {
     public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
         try {
             playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
-            return new ResponseEntity<>(HttpStatus.OK);
+            Player player = getPlayer(id).getBody();
+            return new ResponseEntity<>(player, HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+//    playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
+//    return getPlayer(id).getBody();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Player> deletePlayer(@PathVariable long id) {
-        try {
-            playerService.deletePlayerById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+            Player player = playerService.deletePlayerById(id);
+            if(player != null) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
     }
 
     private Player convertCreatePlayerRequest(PlayerRequest playerRequest) {

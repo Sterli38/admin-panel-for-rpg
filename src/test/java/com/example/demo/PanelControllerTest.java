@@ -2,6 +2,7 @@ package com.example.demo;
 
 
 import com.example.demo.controller.PanelController;
+import com.example.demo.dao.PlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
@@ -34,10 +35,10 @@ public class PanelControllerTest {
     private PanelController controller;
     @Autowired
     private ObjectMapper objectMapper;
-//    @Autowired
-//    private PlayerDao dao;
     @Autowired
     PlayerService service;
+    @Autowired
+    PlayerDao dao;
     private Long idVasiliy;
     private Long idGeorgy;
     private Long idLena;
@@ -72,9 +73,9 @@ public class PanelControllerTest {
         playerLena.setBirthday(1670941959000L);
         playerLena.setBanned(false);
     }
+
     @BeforeEach
-    public void addPlayer () {
-//        id = dao.createPlayer(player).getId();
+    public void addPlayer() {
         service.createPlayer(playerVasiliy);
         service.createPlayer(playerGeorgy);
         service.createPlayer(playerLena);
@@ -84,58 +85,76 @@ public class PanelControllerTest {
     }
 
     @AfterEach
-    public void deletePlayer () {
+    public void deletePlayer() {
         try {
-//            dao.deletePlayerById(id);
-            service.deletePlayerById(idVasiliy);
-            service.deletePlayerById(idGeorgy);
-            service.deletePlayerById(idLena);
-        } catch(Exception ignore) {}
+            dao.clear();
+        } catch (Exception ignore) {
+        }
     }
 
 
     @Test
-    public void getPlayersByFilterTest() throws Exception {
+    public void getPlayersByFilterTestNameTesting() throws Exception {
         this.mockMvc.perform(get("/rest/players/").param("name", "eor"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerGeorgy))));
+    }
 
+    @Test
+    public void getPlayersByFilterTestTitleTesting() throws Exception {
         this.mockMvc.perform(get("/rest/players/").param("title", "TitleTitle"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena))));
+    }
 
+    @Test
+    public void getPlayersByFilterTestRaceTesting() throws Exception {
         this.mockMvc.perform(get("/rest/players/").param("race", "HUMAN"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerLena))));
+    }
 
-        this.mockMvc.perform(get("/rest/players/").param("profession","WARRIOR"))
+    @Test
+    public void getPlayersByFilterTestProfessionTesting() throws Exception {
+        this.mockMvc.perform(get("/rest/players/").param("profession", "WARRIOR"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+    }
 
-                this.mockMvc.perform(get("/rest/players/").param("before", "1672946964").param("after", "1668349959"))
+    @Test
+    public void getPlayersByFilterTestBirthdayTesting() throws Exception {
+        this.mockMvc.perform(get("/rest/players/").param("before", "1672946964000").param("after", "1668349959000"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerGeorgy, playerLena))));
+    }
 
-        this.mockMvc.perform(get("/rest/players/").param("minLevel","1").param("maxLevel", "4"))
+    @Test
+    public void getPlayersByFilterTestLevelTesting() throws Exception {
+        this.mockMvc.perform(get("/rest/players/").param("minLevel", "1").param("maxLevel", "4"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+    }
 
-        this.mockMvc.perform(get("/rest/players/").param("minExperience", "500").param("maxExperience" , "1300"))
+    @Test
+    public void getPlayersByFilterTestExperienceTesting() throws Exception {
+        this.mockMvc.perform(get("/rest/players/").param("minExperience", "500").param("maxExperience", "1300"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+    }
 
-                this.mockMvc.perform(get("/rest/players/").param("banned", "false"))
+    @Test
+    public void getPlayersByFilterTestBannedTesting() throws Exception {
+        this.mockMvc.perform(get("/rest/players/").param("banned", "false"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerLena))));
-
     }
 
     @Test
@@ -148,63 +167,81 @@ public class PanelControllerTest {
 
     @Test
     public void createPlayerTest() throws Exception {
+        Player player = new Player();
+        player.setName("player");
+        player.setTitle("Title");
+        player.setRace(Race.HUMAN);
+        player.setProfession(Profession.WARRIOR);
+        player.setExperience(1000);
+        player.setBirthday(1609874962000L);
+        player.setBanned(true);
         mockMvc.perform(post("/rest/players/")
-                                .content(objectMapper.writeValueAsString(playerVasiliy))
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-//                .andExpect(jsonPath("$.id").isNumber())
-//                .andExpect(jsonPath("$.name").value("Vasiliy"))
-//                .andExpect(jsonPath("$.title").value("Title"))
-//                .andExpect(jsonPath("$.race").value(Race.HUMAN))
-//                .andExpect(jsonPath("$.profession").value(Profession.WARRIOR))
-//                .andExpect(jsonPath("$.experience").value(1000))
-//                .andExpect(jsonPath("$.level").value(4))
-//                .andExpect(jsonPath("$.untilNextLevel").value(500))
-//                .andExpect(jsonPath("$.birthday").value(1679639551000L))
-//                .andExpect(jsonPath("$.banned").value(true));
+                        .content(objectMapper.writeValueAsString(player))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.name").value("player"))
+                .andExpect(jsonPath("$.title").value("Title"))
+                .andExpect(jsonPath("$.race").value(Race.HUMAN.name()))
+                .andExpect(jsonPath("$.profession").value(Profession.WARRIOR.name()))
+                .andExpect(jsonPath("$.experience").value(1000))
+                .andExpect(jsonPath("$.level").value(4))
+                .andExpect(jsonPath("$.untilNextLevel").value(500))
+                .andExpect(jsonPath("$.birthday").value(1609874962000L))
+                .andExpect(jsonPath("$.banned").value(true));
     }
 
     @Test
     public void getPlayerTest() throws Exception {
-             this.mockMvc.perform(get("/rest/players/{id}", idVasiliy))
-                     .andExpect(status().isOk())
-                     .andExpect(jsonPath("$.name").value("Vasiliy"))
-                     .andExpect(jsonPath("$.title").value("Title"))
-                     .andExpect(jsonPath("$.race").value(Race.HUMAN.name()))
-                     .andExpect(jsonPath("$.profession").value(Profession.WARRIOR.name()))
-                     .andExpect(jsonPath("$.experience").value(1000))
-                     .andExpect(jsonPath("$.level").value(4))
-                     .andExpect(jsonPath("$.untilNextLevel").value(500))
-                     .andExpect(jsonPath("$.birthday").value(1609874962000L))
-                     .andExpect(jsonPath("$.banned").value(true));
+        this.mockMvc.perform(get("/rest/players/{id}", idVasiliy))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Vasiliy"))
+                .andExpect(jsonPath("$.title").value("Title"))
+                .andExpect(jsonPath("$.race").value(Race.HUMAN.name()))
+                .andExpect(jsonPath("$.profession").value(Profession.WARRIOR.name()))
+                .andExpect(jsonPath("$.experience").value(1000))
+                .andExpect(jsonPath("$.level").value(4))
+                .andExpect(jsonPath("$.untilNextLevel").value(500))
+                .andExpect(jsonPath("$.birthday").value(1609874962000L))
+                .andExpect(jsonPath("$.banned").value(true));
     }
 
     @Test
     public void updatePlayerTest() throws Exception {
-        Player playerForUpdate = new Player();
-        playerForUpdate.setName("Mickey");
-        playerForUpdate.setTitle("new Title");
-        playerForUpdate.setRace(Race.ELF);
-        playerForUpdate.setProfession(Profession.SORCERER);
-        playerForUpdate.setExperience(2000);
-        playerForUpdate.setBirthday(167963955100000L);
-        playerForUpdate.setBanned(false);
+        Player playerGeorgyClone = new Player();
+        Player updateForPlayer = new Player();
+        playerGeorgyClone.setId(Long.MAX_VALUE);
+        playerGeorgyClone.setName(playerGeorgy.getName());
+        playerGeorgyClone.setTitle(playerGeorgy.getTitle());
+        playerGeorgyClone.setRace(playerGeorgy.getRace());
+        playerGeorgyClone.setProfession(playerGeorgy.getProfession());
+        playerGeorgyClone.setExperience(playerGeorgy.getExperience());
+        playerGeorgyClone.setBirthday(playerGeorgy.getBirthday());
+        playerGeorgyClone.setBanned(playerGeorgy.getBanned());
+        service.createPlayer(playerGeorgyClone);
+        updateForPlayer.setId(playerGeorgyClone.getId());
+        updateForPlayer.setName("Mickey");
+        updateForPlayer.setTitle("new Title");
+        updateForPlayer.setRace(Race.ELF);
+        updateForPlayer.setProfession(Profession.SORCERER);
+        updateForPlayer.setExperience(2000);
+        updateForPlayer.setBirthday(167963955100000L);
+        updateForPlayer.setBanned(false);
 
-        this.mockMvc.perform(post("/rest/players/{id}", idVasiliy)
-                .content(objectMapper.writeValueAsString(playerForUpdate))
-                .contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(post("/rest/players/{id}", playerGeorgyClone.getId())
+                        .content(objectMapper.writeValueAsString(updateForPlayer))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.name").value("Mickey"));
-//                .andExpect(jsonPath("$.title").value("new Title"))
-//                .andExpect(jsonPath("$.race").value(Race.ELF.name()))
-//                .andExpect(jsonPath("$.profession").value(Profession.SORCERER.name()))
-//                .andExpect(jsonPath("$.experience").value(2000))
-//                .andExpect(jsonPath("$.level").value(6))
-//                .andExpect(jsonPath("$.untilNextLevel").value(800))
-//                .andExpect(jsonPath("$.birthday").value(167963955100L))
-//                .andExpect(jsonPath("$.banned").value(false));
-
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Mickey"))
+                .andExpect(jsonPath("$.title").value("new Title"))
+                .andExpect(jsonPath("$.race").value(Race.ELF.name()))
+                .andExpect(jsonPath("$.profession").value(Profession.SORCERER.name()))
+                .andExpect(jsonPath("$.experience").value(2000))
+                .andExpect(jsonPath("$.level").value(6))
+                .andExpect(jsonPath("$.untilNextLevel").value(800))
+                .andExpect(jsonPath("$.birthday").value(167963955100000L))
+                .andExpect(jsonPath("$.banned").value(false));
     }
 
     @Test
@@ -212,8 +249,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(delete("/rest/players/{id}", idVasiliy))
                 .andExpect(status().isOk());
 
-                this.mockMvc.perform(get("/rest/players/"))
-                        .andExpect(status().isOk()).andDo(print())
-                        .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena))));
+        this.mockMvc.perform(get("/rest/players/{id}", idVasiliy))
+                .andExpect(status().isNotFound());
     }
 }
