@@ -1,0 +1,1 @@
+docker run --name playersdb -d -p 8091:5432 playersdb:latest
