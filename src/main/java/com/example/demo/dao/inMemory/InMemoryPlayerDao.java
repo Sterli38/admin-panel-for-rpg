@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Repository
+@Repository("inMemoryDao")
 public class InMemoryPlayerDao implements PlayerDao {
 
     private final HashMap<Long, Player> players = new HashMap<>();
