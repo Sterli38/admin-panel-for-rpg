@@ -4,6 +4,7 @@ import com.example.demo.dao.PlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,34 +13,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlayerService {
 
-    private final PlayerDao inMemoryDao;
+    private final PlayerDao playerDao;
 
     public List<Player> getPlayers() {
-        return inMemoryDao.getPlayers();
+        return playerDao.getPlayers();
     }
 
     public Player createPlayer(Player player) {
         setCurrentLevel(player);
         setUntilNextLevel(player);
-        return inMemoryDao.createPlayer(player);
+        return playerDao.createPlayer(player);
     }
 
     public void editPlayer(Long id, Player player) {
         setCurrentLevel(player);
         setUntilNextLevel(player);
-        inMemoryDao.editPlayer(id ,player);
+        playerDao.editPlayer(id ,player);
     }
 
     public Player deletePlayerById(long id) {
-        return inMemoryDao.deletePlayerById(id);
+        return playerDao.deletePlayerById(id);
     }
 
     public Player getPlayerById(long id) {
-        return inMemoryDao.getPlayerById(id);
+        return playerDao.getPlayerById(id);
     }
 
     public List<Player> getPlayersByFilter(Filter filter) {
-        return inMemoryDao.getPlayersByFilter(filter);
+        return playerDao.getPlayersByFilter(filter);
     }
 
     private void setCurrentLevel(Player player) {

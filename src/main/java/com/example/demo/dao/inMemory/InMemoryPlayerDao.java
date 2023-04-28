@@ -8,6 +8,7 @@ import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
 
 import com.example.demo.filter.PlayerOrder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -16,7 +17,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Repository("inMemoryDao")
+@ConditionalOnProperty(name = "application.save.mode", havingValue = "inMemory")
+@Repository
 public class InMemoryPlayerDao implements PlayerDao {
 
     private final HashMap<Long, Player> players = new HashMap<>();

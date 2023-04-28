@@ -12,6 +12,8 @@ import com.example.demo.filter.PlayerOrder;
 import com.example.demo.service.PlayerError;
 import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.flogger.Flogger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
 
+@Slf4j
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -89,13 +92,9 @@ public class PanelController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody @Valid CreatePlayerRequest createPlayerRequest) {
-        try {
-            Player player = playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
-            return new ResponseEntity<>(player, HttpStatus.CREATED);
-        } catch(Exception e ) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Player> createPlayer(@RequestBody CreatePlayerRequest createPlayerRequest) {
+        Player player = playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
+        return new ResponseEntity<>(player, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -113,7 +112,7 @@ public class PanelController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody @Valid UpdatePlayerRequest updatePlayerRequest) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody  UpdatePlayerRequest updatePlayerRequest) {
         try {
             playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
             Player player = getPlayer(id).getBody();
