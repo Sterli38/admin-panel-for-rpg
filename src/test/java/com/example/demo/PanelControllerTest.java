@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -55,7 +56,7 @@ public class PanelControllerTest {
         playerVasiliy.setRace(Race.HUMAN);
         playerVasiliy.setProfession(Profession.WARRIOR);
         playerVasiliy.setExperience(1000);
-        playerVasiliy.setBirthday(1609874962000L);
+        playerVasiliy.setBirthday(new Date(1609874962000L));
         playerVasiliy.setBanned(true);
         playerGeorgy = new Player();
         playerGeorgy.setName("Georgy");
@@ -63,7 +64,7 @@ public class PanelControllerTest {
         playerGeorgy.setRace(Race.ORC);
         playerGeorgy.setProfession(Profession.WARRIOR);
         playerGeorgy.setExperience(987);
-        playerGeorgy.setBirthday(1672946962000L);
+        playerGeorgy.setBirthday(new Date(1672946962000L));
         playerGeorgy.setBanned(true);
         playerLena = new Player();
         playerLena.setName("Lena");
@@ -71,7 +72,7 @@ public class PanelControllerTest {
         playerLena.setRace(Race.HUMAN);
         playerLena.setProfession(Profession.PALADIN);
         playerLena.setExperience(1500);
-        playerLena.setBirthday(1670941959000L);
+        playerLena.setBirthday(new Date(1670941959000L));
         playerLena.setBanned(false);
     }
 
@@ -174,7 +175,7 @@ public class PanelControllerTest {
         player.setRace(Race.HUMAN);
         player.setProfession(Profession.WARRIOR);
         player.setExperience(1000);
-        player.setBirthday(1609874962000L);
+        player.setBirthday(new Date(1609874962000L));
         player.setBanned(true);
         mockMvc.perform(post("/rest/players/")
                         .content(objectMapper.writeValueAsString(player))
@@ -226,7 +227,7 @@ public class PanelControllerTest {
         updateForPlayer.setRace(Race.ELF);
         updateForPlayer.setProfession(Profession.SORCERER);
         updateForPlayer.setExperience(2000);
-        updateForPlayer.setBirthday(167963955100000L);
+        updateForPlayer.setBirthday(new Date(167963955100000L));
         updateForPlayer.setBanned(false);
 
         this.mockMvc.perform(post("/rest/players/{id}", playerGeorgyClone.getId())
