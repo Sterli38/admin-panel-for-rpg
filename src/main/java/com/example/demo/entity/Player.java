@@ -20,12 +20,4 @@ public class Player {
     private Integer untilNextLevel;
     private Date birthday;
     private Boolean banned;
-
-    public void setBirthday(Long unixTime) {
-        this.birthday = new Date(unixTime);
-    }
-
-    public Long getBirthday() {
-        return birthday.getTime();
-    }
 }
