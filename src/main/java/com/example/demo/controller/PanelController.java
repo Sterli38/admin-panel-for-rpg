@@ -3,27 +3,25 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreatePlayerRequest;
 import com.example.demo.controller.request.PlayerRequest;
 import com.example.demo.controller.request.UpdatePlayerRequest;
-import com.example.demo.dao.inMemory.InMemoryPlayerDao;
+import com.example.demo.controller.response.PlayerResponse;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
 import com.example.demo.filter.PlayerOrder;
-import com.example.demo.service.PlayerError;
 import com.example.demo.service.PlayerService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.flogger.Flogger;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Validated
@@ -34,7 +32,7 @@ public class PanelController {
     private final PlayerService playerService;
 
     @GetMapping
-    public List<Player> getPlayers(@RequestParam(required = false) String name,
+    public List<PlayerResponse> getPlayers(@RequestParam(required = false) String name,
                                    @RequestParam(required = false) String title,
                                    @RequestParam(required = false) Race race,
                                    @RequestParam(required = false) Profession profession,
@@ -50,7 +48,9 @@ public class PanelController {
                                    @RequestParam(required = false, defaultValue = "3") Integer pageSize) {
         Filter filter = createFilter(name, title, race, profession, after, before, banned, minExperience, maxExperience,
                 minLevel, maxLevel, order, pageNumber, pageSize);
-        return playerService.getPlayersByFilter(filter);
+        return playerService.getPlayersByFilter(filter).stream()
+                .map(this::convertPlayer)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/count")
@@ -92,17 +92,19 @@ public class PanelController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody CreatePlayerRequest createPlayerRequest) {
-        Player player = playerService.createPlayer(convertCreatePlayerRequest(createPlayerRequest));
-        return new ResponseEntity<>(player, HttpStatus.CREATED);
+    public ResponseEntity<PlayerResponse> createPlayer(@RequestBody CreatePlayerRequest createPlayerRequest) {
+        Player player = playerService.createPlayer(convertPlayerRequest(createPlayerRequest));
+        PlayerResponse playerResponse = convertPlayer(player);
+        return new ResponseEntity<>(playerResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayer(@PathVariable long id) {
+    public ResponseEntity<PlayerResponse> getPlayer(@PathVariable long id) {
 //        try {
             Player player = playerService.getPlayerById(id);
-            if(player != null) {
-                return new ResponseEntity<>(player, HttpStatus.OK);
+            PlayerResponse playerResponse = convertPlayer(player);
+            if(playerResponse != null) {
+                return new ResponseEntity<>(playerResponse, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -112,11 +114,11 @@ public class PanelController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody  UpdatePlayerRequest updatePlayerRequest) {
+    public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable Long id, @RequestBody  UpdatePlayerRequest updatePlayerRequest) {
         try {
-            playerService.editPlayer(id, convertCreatePlayerRequest(updatePlayerRequest));
-            Player player = getPlayer(id).getBody();
-            return new ResponseEntity<>(player, HttpStatus.OK);
+            playerService.editPlayer(id, convertPlayerRequest(updatePlayerRequest));
+            PlayerResponse playerResponse = getPlayer(id).getBody();
+            return new ResponseEntity<>(playerResponse, HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -125,7 +127,7 @@ public class PanelController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Player> deletePlayer(@PathVariable long id) {
+    public ResponseEntity<?> deletePlayer(@PathVariable long id) {
             Player player = playerService.deletePlayerById(id);
             if(player != null) {
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -134,15 +136,30 @@ public class PanelController {
             }
     }
 
-    private Player convertCreatePlayerRequest(PlayerRequest playerRequest) {
+    private Player convertPlayerRequest(PlayerRequest playerRequest) {
         Player player = new Player();
         player.setName(playerRequest.getName());
         player.setTitle(playerRequest.getTitle());
         player.setRace(playerRequest.getRace());
         player.setProfession(playerRequest.getProfession());
         player.setExperience(playerRequest.getExperience());
-        player.setBirthday(playerRequest.getBirthday().getTime());
+        player.setBirthday(playerRequest.getBirthday());
         player.setBanned(playerRequest.getBanned());
         return player;
+    }
+
+    private PlayerResponse convertPlayer(Player player) {
+        PlayerResponse playerResponse = new PlayerResponse();
+        playerResponse.setId(player.getId());
+        playerResponse.setName(player.getName());
+        playerResponse.setTitle(player.getTitle());
+        playerResponse.setRace(player.getRace());
+        playerResponse.setProfession(player.getProfession());
+        playerResponse.setExperience(player.getExperience());
+        playerResponse.setLevel(player.getLevel());
+        playerResponse.setUntilNextLevel(player.getUntilNextLevel());
+        playerResponse.setBirthday(player.getBirthday().getTime());
+        playerResponse.setBanned(player.getBanned());
+        return playerResponse;
     }
 }
