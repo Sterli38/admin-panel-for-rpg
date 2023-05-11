@@ -133,7 +133,7 @@ public class InMemoryPlayerDao implements PlayerDao {
                 .filter(player -> filter.getRace() == null || player.getRace() == filter.getRace())
                 .filter(player -> filter.getProfession() == null || player.getProfession() == filter.getProfession())
                 .filter(player -> filter.getAfter() == null && filter.getBefore() == null ||
-                        player.getBirthday() >= filter.getAfter() && player.getBirthday() <= filter.getBefore())
+                        player.getBirthday().getTime() >= filter.getAfter() && player.getBirthday().getTime() <= filter.getBefore())
                 .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
                 .filter(player -> filter.getMinExperience() == null && filter.getMaxExperience() == null ||
                         player.getExperience() >= filter.getMinExperience() &&
