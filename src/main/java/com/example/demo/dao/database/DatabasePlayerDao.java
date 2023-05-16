@@ -8,8 +8,13 @@ import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -28,15 +33,24 @@ public class DatabasePlayerDao implements PlayerDao {
     public Player createPlayer(Player player) {
         int raceId = getRaceId(player);
         int professionId = getProfessionId(player);
-//        jdbcTemplate.update("INSERT INTO players(name, title, race_id, profession_id, experience, level, until_next_level, birthday, banned) values(?, ?, ?, ?, ?, ?, ?,?,?)",
-//                player.getName(), player.getTitle(), raceId, professionId,
-//                player.getExperience(), player.getLevel(), player.getUntilNextLevel(), player.getBirthday(), player.getBanned());
-//        Player player1 = jdbcTemplate.queryForObject("INSERT INTO players(name, title, race_id, profession_id, experience, level, until_next_level, birthday, banned) values(?, ?, ?, ?, ?, ?, ?,?,?)", new PlayerMapper(),
-//                player.getName(), player.getTitle(), raceId, professionId,
-//                player.getExperience(), player.getLevel(), player.getUntilNextLevel(), player.getBirthday(), player.getBanned());
-        Player player1 = jdbcTemplate.queryForObject("SELECT * FROM players WHERE name = ? and title = ? and race_id = ? and  profession_id = ? and experience = ? and level = ? and until_next_level = ? and  birthday = ? and banned = ?", new PlayerMapper(),
-                player.getName(), player.getTitle(), raceId, professionId,
-                player.getExperience(), player.getLevel(), player.getUntilNextLevel(), player.getBirthday(), player.getBanned());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                PreparedStatement ps = connection.prepareStatement("insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[] { "id" });
+                ps.setString(1, player.getName());
+                ps.setString(2, player.getTitle());
+                ps.setLong(3, raceId);
+                ps.setLong(4, professionId);
+                ps.setLong(5, player.getExperience());
+                ps.setLong(6, player.getLevel());
+                ps.setLong(7, player.getUntilNextLevel());
+                ps.setDate(8,);
+                ps.setBoolean(9, player.getBanned());
+                return ps;
+            }
+        }, keyHolder);
+
+        Player player1 = getPlayerById(keyHolder.getKey().longValue());
         return player1;
     }
 
@@ -64,23 +78,10 @@ public class DatabasePlayerDao implements PlayerDao {
         List<Player> players =  jdbcTemplate.query("SELECT * FROM players", new PlayerMapper());
         Integer filterRaceId = jdbcTemplate.queryForObject("SELECT id FROM race WHERE name = ?", Integer.class, filter.getRace().name());
         Integer filterProfessionId = jdbcTemplate.queryForObject("SELECT id FROM profession WHERE name = ?", Integer.class, filter.getProfession().name());
-        return players.stream().
-        filter(player -> filter.getName() == null || Pattern.compile(Pattern.quote(filter.getName()), Pattern.CASE_INSENSITIVE).matcher(player.getName()).find())
-                .filter(player -> filter.getTitle() == null || player.getTitle().equals(filter.getTitle()))
-                .filter(player -> filterRaceId == null || player.getRace() == filter.getRace())
-                .filter(player -> filterProfessionId == null || player.getProfession() == filter.getProfession())
-                .filter(player -> filter.getAfter() == null && filter.getBefore() == null ||
-                        player.getBirthday().getTime() >= filter.getAfter() && player.getBirthday().getTime() <= filter.getBefore())
-                .filter(player -> filter.getBanned() == null || player.getBanned() == filter.getBanned())
-                .filter(player -> filter.getMinExperience() == null && filter.getMaxExperience() == null ||
-                        player.getExperience() >= filter.getMinExperience() &&
-                                player.getExperience() <= filter.getMaxExperience())
-                .filter(player -> filter.getMinLevel() == null && filter.getMaxLevel() == null ||
-                        player.getLevel() >= filter.getMinLevel() && player.getLevel() <= filter.getMaxLevel())
-                .sorted(new PlayerComparator(filter))
-                .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber()) * filter.getPageSize()))
-                .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
-                .toList();
+
+        return jdbcTemplate.query("SELECT * FROM players WHERE WHERE name = ? and title = ? and race_id = ? and  profession_id = ? and experience >= ? and experience <= ? ane level >= ? and level <= ? and birthday >= ? and birthday <= ? banned = ?",
+                new PlayerMapper(), filter.getName(), filter.getTitle(), filterRaceId, filterProfessionId, filter.getMinExperience(), filter.getMaxExperience(), filter.getMinLevel(), filter.getMaxLevel(), filter.getAfter(), filter.getBefore(), filter.getBanned())
+
     }
 
     @Override

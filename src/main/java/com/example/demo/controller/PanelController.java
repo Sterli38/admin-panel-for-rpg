@@ -117,7 +117,7 @@ public class PanelController {
     public ResponseEntity<PlayerResponse> updatePlayer(@PathVariable Long id, @RequestBody  UpdatePlayerRequest updatePlayerRequest) {
         try {
             playerService.editPlayer(id, convertPlayerRequest(updatePlayerRequest));
-            PlayerResponse playerResponse = getPlayer(id).getBody();
+            PlayerResponse playerResponse = convertPlayer(playerService.getPlayerById(id));
             return new ResponseEntity<>(playerResponse, HttpStatus.OK);
         } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
