@@ -5,7 +5,7 @@ DROP TABLE if EXISTS profession;
 CREATE TABLE race
 (
     id  serial primary key,
-    name varchar NOT NULL
+    name varchar NOT NULL UNIQUE
 );
 
 INSERT INTO race(name)
@@ -20,7 +20,7 @@ values ('HUMAN'),
 CREATE TABLE profession
 (
     id   serial primary key,
-    name varchar NOT NULL
+    name varchar NOT NULL UNIQUE
 );
 
 INSERT INTO profession(name)
