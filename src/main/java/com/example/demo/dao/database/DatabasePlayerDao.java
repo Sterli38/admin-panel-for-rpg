@@ -3,6 +3,7 @@ package com.example.demo.dao.database;
 import com.example.demo.dao.PlayerDao;
 import com.example.demo.dao.inMemory.PlayerComparator;
 import com.example.demo.entity.Player;
+import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -36,7 +38,7 @@ public class DatabasePlayerDao implements PlayerDao {
         int professionId = getProfessionId(player.getName());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[] { "id" });
+            PreparedStatement ps = connection.prepareStatement("insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[]{"id"});
             ps.setString(1, player.getName());
             ps.setString(2, player.getTitle());
             ps.setLong(3, raceId);
@@ -75,20 +77,59 @@ public class DatabasePlayerDao implements PlayerDao {
 
     @Override
     public List<Player> getPlayersByFilter(Filter filter) {
-        Integer filterRaceId = getRaceId(filter.getRace().name());
-        Integer filterProfessionId = getProfessionId(filter.getProfession().name());
+        List<Object> filters = new ArrayList<>();
+        Integer filterRaceId = getRaceId(checkFilter(filter.getRace()));
+        Integer filterProfessionId = getProfessionId(checkFilter(filter.getProfession()));
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder
                 .select("*")
                 .from("players");
-        if(filter.getName() != null) {
+        if (filter.getName() != null) {
             sqlBuilder.where("name = ?");
+            filters.add(filter.getName());
         }
-
-
-//        return jdbcTemplate.query("SELECT * FROM players WHERE name = ? and title = ? and race_id = ? and  profession_id = ? and experience >= ? and experience <= ? ane level >= ? and level <= ? and birthday >= ? and birthday <= ? banned = ?",
-//                new PlayerMapper(), filter.getName(), filter.getTitle(), filterRaceId, filterProfessionId, filter.getMinExperience(), filter.getMaxExperience(), filter.getMinLevel(), filter.getMaxLevel(), filter.getAfter(), filter.getBefore(), filter.getBanned());
-
+        if (filter.getTitle() != null) {
+            sqlBuilder.where("title = ?");
+            filters.add(filter.getTitle());
+        }
+        if (filter.getRace() != null) {
+            sqlBuilder.where("race = ?");
+            filters.add(filterRaceId);
+        }
+        if (filter.getProfession() != null) {
+            sqlBuilder.where("profession = ?");
+            filters.add(filterProfessionId);
+        }
+        if (filter.getMinExperience() != null) {
+            sqlBuilder.where("experience >= ?");
+            filters.add(filter.getMinExperience());
+        }
+        if (filter.getMaxExperience() != null) {
+            sqlBuilder.where("experience <= ?");
+            filters.add(filter.getMaxExperience());
+        }
+        if (filter.getMinLevel() != null) {
+            sqlBuilder.where("level >= ?");
+            filters.add(filter.getMinLevel());
+        }
+        if (filter.getMaxLevel() != null) {
+            sqlBuilder.where("level <= ?");
+            filters.add(filter.getMaxLevel());
+        }
+        if (filter.getAfter() != null) {
+            sqlBuilder.where("birthday >= ?");
+            filters.add(filter.getAfter());
+        }
+        if (filter.getBefore() != null) {
+            sqlBuilder.where("birthday <= ?");
+            filters.add(filter.getBefore());
+        }
+        if (filter.getBanned() != null) {
+            sqlBuilder.where("banned = ?");
+            filters.add(filter.getBanned());
+        }
+        String sql = sqlBuilder.build();
+        return jdbcTemplate.query(sql, new PlayerMapper(), filters.toArray());
     }
 
     @Override
@@ -97,10 +138,23 @@ public class DatabasePlayerDao implements PlayerDao {
     }
 
     private int getRaceId(String raceName) {
+        if (raceName == null) {
+            return 0;
+        }
         return jdbcTemplate.queryForObject("SELECT id FROM race WHERE name = ?", Integer.class, raceName);
     }
 
     private int getProfessionId(String professionName) {
+        if (professionName == null) {
+            return 0;
+        }
         return jdbcTemplate.queryForObject("SELECT id FROM profession WHERE name = ?", Integer.class, professionName);
+    }
+
+    private String checkFilter(Enum filter) { // Проверяет что фильтр не пуст
+        if(filter != null) {
+            return filter.name();
+        }
+        return null;
     }
 }
