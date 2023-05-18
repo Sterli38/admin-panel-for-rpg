@@ -1,24 +1,18 @@
 package com.example.demo.dao.database;
 
 import com.example.demo.dao.PlayerDao;
-import com.example.demo.dao.inMemory.PlayerComparator;
 import com.example.demo.entity.Player;
-import com.example.demo.entity.Profession;
-import com.example.demo.entity.Race;
 import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @ConditionalOnProperty(name = "application.save.mode", havingValue = "database")
 @Repository
@@ -28,14 +22,13 @@ public class DatabasePlayerDao implements PlayerDao {
 
     @Override
     public List<Player> getPlayers() {
-//        return jdbcTemplate.queryForList("SELECT * FROM players", Player.class);
-        return jdbcTemplate.query("SELECT * FROM players", new PlayerMapper());
+        return jdbcTemplate.query("SELECT * FROM players", new PlayerMapper(jdbcTemplate));
     }
 
     @Override
     public Player createPlayer(Player player) {
-        int raceId = getRaceId(player.getName());
-        int professionId = getProfessionId(player.getName());
+        int raceId = getRaceId(player.getRace().name());
+        int professionId = getProfessionId(player.getProfession().name());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement("insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[]{"id"});
@@ -72,19 +65,22 @@ public class DatabasePlayerDao implements PlayerDao {
 
     @Override
     public Player getPlayerById(long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM players WHERE id=?", new PlayerMapper(), id);
+        return jdbcTemplate.queryForObject("SELECT * FROM players WHERE id=?", new PlayerMapper(jdbcTemplate), id);
     }
 
     @Override
     public List<Player> getPlayersByFilter(Filter filter) {
+//        String conditionName = (new StringBuilder(filter.getName())).insert(0, "%").append("%").toString();
         List<Object> filters = new ArrayList<>();
-        Integer filterRaceId = getRaceId(checkFilter(filter.getRace()));
-        Integer filterProfessionId = getProfessionId(checkFilter(filter.getProfession()));
+        Integer filterRaceId = getRaceId(checkEmptyFilter(filter.getRace()));
+        Integer filterProfessionId = getProfessionId(checkEmptyFilter(filter.getProfession()));
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder
                 .select("*")
                 .from("players");
         if (filter.getName() != null) {
+//            sqlBuilder.where("name LIKE");
+//            filters.add(conditionName);
             sqlBuilder.where("name = ?");
             filters.add(filter.getName());
         }
@@ -93,11 +89,11 @@ public class DatabasePlayerDao implements PlayerDao {
             filters.add(filter.getTitle());
         }
         if (filter.getRace() != null) {
-            sqlBuilder.where("race = ?");
+            sqlBuilder.where("race_id = ?");
             filters.add(filterRaceId);
         }
         if (filter.getProfession() != null) {
-            sqlBuilder.where("profession = ?");
+            sqlBuilder.where("profession_id = ?");
             filters.add(filterProfessionId);
         }
         if (filter.getMinExperience() != null) {
@@ -118,18 +114,18 @@ public class DatabasePlayerDao implements PlayerDao {
         }
         if (filter.getAfter() != null) {
             sqlBuilder.where("birthday >= ?");
-            filters.add(filter.getAfter());
+            filters.add(new Date(filter.getAfter()));
         }
         if (filter.getBefore() != null) {
             sqlBuilder.where("birthday <= ?");
-            filters.add(filter.getBefore());
+            filters.add(new Date(filter.getBefore()));
         }
         if (filter.getBanned() != null) {
             sqlBuilder.where("banned = ?");
             filters.add(filter.getBanned());
         }
         String sql = sqlBuilder.build();
-        return jdbcTemplate.query(sql, new PlayerMapper(), filters.toArray());
+            return jdbcTemplate.query(sql, new PlayerMapper(jdbcTemplate), filters.toArray());
     }
 
     @Override
@@ -151,7 +147,7 @@ public class DatabasePlayerDao implements PlayerDao {
         return jdbcTemplate.queryForObject("SELECT id FROM profession WHERE name = ?", Integer.class, professionName);
     }
 
-    private String checkFilter(Enum filter) { // Проверяет что фильтр не пуст
+    private String checkEmptyFilter(Enum filter) { // Проверяет что фильтр не пуст
         if(filter != null) {
             return filter.name();
         }
