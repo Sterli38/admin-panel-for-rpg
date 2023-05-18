@@ -38,7 +38,7 @@ public class InMemoryPlayerDao implements PlayerDao {
 //        player.setExperience(1000);
 //        player.setLevel(5);
 //        player.setUntilNextLevel(10);
-//        player.setBirthday(date);
+//        player.setBirthday(new Date(date));
 //        player.setBanned(true);
 //        player1.setName("Lenya");
 //        player1.setTitle("Title");
@@ -47,7 +47,7 @@ public class InMemoryPlayerDao implements PlayerDao {
 //        player1.setExperience(50000);
 //        player1.setLevel(55);
 //        player1.setUntilNextLevel(10);
-//        player1.setBirthday(date1);
+//        player1.setBirthday(new Date(date1));
 //        player1.setBanned(false);
 //        player2.setName("Alex");
 //        player2.setTitle("Title");
@@ -56,7 +56,7 @@ public class InMemoryPlayerDao implements PlayerDao {
 //        player2.setExperience(4000);
 //        player2.setLevel(10);
 //        player2.setUntilNextLevel(10);
-//        player2.setBirthday(date2);
+//        player2.setBirthday(new Date(date2));
 //        player2.setBanned(false);
 //        createPlayer(player);
 //        createPlayer(player1);
