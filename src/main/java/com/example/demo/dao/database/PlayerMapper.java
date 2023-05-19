@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 @RequiredArgsConstructor
 public class PlayerMapper implements RowMapper<Player> {
-    private final JdbcTemplate jdbcTemplate;
+//    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -22,18 +22,13 @@ public class PlayerMapper implements RowMapper<Player> {
         player.setId(rs.getLong("id"));
         player.setName(rs.getString("name"));
         player.setTitle(rs.getString("title"));
-        int raceId = rs.getInt("race_id");
-        int professionId = rs.getInt("profession_id");
+        player.setRace(Race.valueOf(rs.getString("raceName")));
+        player.setProfession(Profession.valueOf(rs.getString("ProfessionName")));
         player.setExperience( rs.getInt("experience"));
         player.setLevel(rs.getInt("level"));
         player.setUntilNextLevel(rs.getInt("until_next_level"));
         player.setBirthday(rs.getDate("birthday"));
         player.setBanned(rs.getBoolean("banned"));
-
-        Race race = Race.valueOf(jdbcTemplate.queryForObject("SELECT name FROM Race WHERE id = ?", String.class, raceId));
-        Profession profession =  Profession.valueOf(jdbcTemplate.queryForObject("SELECT name FROM profession WHERE id = ?", String.class, professionId));
-        player.setRace(race);
-        player.setProfession(profession);
 
         return player;
     }

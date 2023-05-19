@@ -78,8 +78,8 @@ public class PanelController {
         filter.setTitle(title);
         filter.setRace(race);
         filter.setProfession(profession);
-        filter.setAfter(after);
-        filter.setBefore(before);
+        filter.setAfter(after == null ? null : new Date(after));
+        filter.setBefore(before == null ? null : new Date(before));
         filter.setBanned(banned);
         filter.setMinExperience(minExperience);
         filter.setMaxExperience(maxExperience);

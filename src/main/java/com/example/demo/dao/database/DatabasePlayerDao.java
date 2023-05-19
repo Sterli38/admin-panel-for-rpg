@@ -6,32 +6,39 @@ import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ConditionalOnProperty(name = "application.save.mode", havingValue = "database")
 @Repository
 @RequiredArgsConstructor
 public class DatabasePlayerDao implements PlayerDao {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public List<Player> getPlayers() {
-        return jdbcTemplate.query("SELECT * FROM players", new PlayerMapper(jdbcTemplate));
+        String sql = "SELECT players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned  " +
+                "FROM players INNER JOIN race on players.race_id = race.id " +
+                "INNER JOIN profession on players.profession_id = profession.id";
+        return jdbcTemplate.query(sql, new PlayerMapper());
     }
 
     @Override
     public Player createPlayer(Player player) {
         int raceId = getRaceId(player.getRace().name());
         int professionId = getProfessionId(player.getProfession().name());
+        String sql = "insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("insert into Players(name, title, race_id, profession_Id, experience, level, until_next_level, birthday, banned) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", new String[]{"id"});
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setString(1, player.getName());
             ps.setString(2, player.getTitle());
             ps.setLong(3, raceId);
@@ -52,80 +59,86 @@ public class DatabasePlayerDao implements PlayerDao {
     public void editPlayer(Long id, Player player) {
         int raceId = getRaceId(player.getName());
         int professionId = getProfessionId(player.getName());
-        jdbcTemplate.update("UPDATE players SET name = ?, title = ?, race_id = ? , profession_id = ?, experience = ?, level = ?, until_next_level = ?, birthday = ?, banned = ? WHERE id = ?", player.getName(), player.getTitle(), raceId, professionId,
+        String sql = "UPDATE players SET name = ?, title = ?, race_id = ? , profession_id = ?, experience = ?, level = ?, until_next_level = ?, birthday = ?, banned = ? WHERE id = ?";
+        jdbcTemplate.update(sql, player.getName(), player.getTitle(), raceId, professionId,
                 player.getExperience(), player.getLevel(), player.getUntilNextLevel(), player.getBirthday(), player.getBanned(), id);
     }
 
     @Override
     public Player deletePlayerById(long id) {
         Player returnPlayer = getPlayerById(id);
-        jdbcTemplate.update("DELETE FROM players WHERE id=?", id);
+        String sql = "DELETE FROM players WHERE id=?";
+        jdbcTemplate.update(sql, id);
         return returnPlayer;
     }
 
     @Override
     public Player getPlayerById(long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM players WHERE id=?", new PlayerMapper(jdbcTemplate), id);
+        String sql = "SELECT players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned  " +
+                "FROM players INNER JOIN race on players.race_id = race.id " +
+                "INNER JOIN profession on players.profession_id = profession.id" +
+                "WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql , new PlayerMapper(), id);
     }
 
     @Override
     public List<Player> getPlayersByFilter(Filter filter) {
 //        String conditionName = (new StringBuilder(filter.getName())).insert(0, "%").append("%").toString();
-        List<Object> filters = new ArrayList<>();
-        Integer filterRaceId = getRaceId(checkEmptyFilter(filter.getRace()));
-        Integer filterProfessionId = getProfessionId(checkEmptyFilter(filter.getProfession()));
+        Map<String, Object> values = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder
-                .select("*")
-                .from("players");
+                .select("players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned")
+                .from("players INNER JOIN race on players.race_id = race.id INNER JOIN profession on players.profession_id = profession.id");
         if (filter.getName() != null) {
 //            sqlBuilder.where("name LIKE");
-//            filters.add(conditionName);
-            sqlBuilder.where("name = ?");
-            filters.add(filter.getName());
+            sqlBuilder.where("name = :name");
+            values.put("name", filter.getName());
         }
         if (filter.getTitle() != null) {
-            sqlBuilder.where("title = ?");
-            filters.add(filter.getTitle());
+            sqlBuilder.where("title = :title");
+
+            values.put("title", filter.getTitle());
         }
         if (filter.getRace() != null) {
-            sqlBuilder.where("race_id = ?");
-            filters.add(filterRaceId);
+            sqlBuilder.where("race.name = :raceName");
+            values.put("raceName", filter.getRace().name());
         }
         if (filter.getProfession() != null) {
-            sqlBuilder.where("profession_id = ?");
-            filters.add(filterProfessionId);
+            sqlBuilder.where("profession.name = :professionName");
+            values.put("professionName", filter.getProfession().name());
         }
         if (filter.getMinExperience() != null) {
-            sqlBuilder.where("experience >= ?");
-            filters.add(filter.getMinExperience());
+            sqlBuilder.where("experience >= :minExperience");
+            values.put("minExperience", filter.getMinExperience());
         }
         if (filter.getMaxExperience() != null) {
-            sqlBuilder.where("experience <= ?");
-            filters.add(filter.getMaxExperience());
+            sqlBuilder.where("experience <= :maxExperience");
+            values.put("maxExperience", filter.getMaxExperience());
         }
         if (filter.getMinLevel() != null) {
-            sqlBuilder.where("level >= ?");
-            filters.add(filter.getMinLevel());
+            sqlBuilder.where("level >= :minLevel");
+            values.put("minLevel", filter.getMinLevel());
         }
         if (filter.getMaxLevel() != null) {
-            sqlBuilder.where("level <= ?");
-            filters.add(filter.getMaxLevel());
+            sqlBuilder.where("level <= :maxLevel");
+            values.put("maxLevel", filter.getMaxLevel());
+
         }
         if (filter.getAfter() != null) {
-            sqlBuilder.where("birthday >= ?");
-            filters.add(new Date(filter.getAfter()));
+            sqlBuilder.where("birthday >= :after");
+            values.put("after", filter.getAfter());
         }
         if (filter.getBefore() != null) {
-            sqlBuilder.where("birthday <= ?");
-            filters.add(new Date(filter.getBefore()));
+            sqlBuilder.where("birthday <= :before");
+            values.put("before", filter.getBefore());
+
         }
         if (filter.getBanned() != null) {
-            sqlBuilder.where("banned = ?");
-            filters.add(filter.getBanned());
+            sqlBuilder.where("banned = :banned");
+            values.put("banned", filter.getBanned());
         }
         String sql = sqlBuilder.build();
-            return jdbcTemplate.query(sql, new PlayerMapper(jdbcTemplate), filters.toArray());
+        return namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
     }
 
     @Override
@@ -134,23 +147,18 @@ public class DatabasePlayerDao implements PlayerDao {
     }
 
     private int getRaceId(String raceName) {
+        String sql = "SELECT id FROM race WHERE name = ?";
         if (raceName == null) {
             return 0;
         }
-        return jdbcTemplate.queryForObject("SELECT id FROM race WHERE name = ?", Integer.class, raceName);
+        return jdbcTemplate.queryForObject(sql, Integer.class, raceName);
     }
 
     private int getProfessionId(String professionName) {
+        String sql = "SELECT id FROM profession WHERE name = ?";
         if (professionName == null) {
             return 0;
         }
-        return jdbcTemplate.queryForObject("SELECT id FROM profession WHERE name = ?", Integer.class, professionName);
-    }
-
-    private String checkEmptyFilter(Enum filter) { // Проверяет что фильтр не пуст
-        if(filter != null) {
-            return filter.name();
-        }
-        return null;
+        return jdbcTemplate.queryForObject(sql, Integer.class, professionName);
     }
 }
