@@ -1,6 +1,7 @@
 package com.example.demo.dao.database;
 
 import com.example.demo.dao.PlayerDao;
+import com.example.demo.dao.inMemory.PlayerComparator;
 import com.example.demo.entity.Player;
 import com.example.demo.filter.Filter;
 import lombok.RequiredArgsConstructor;
@@ -57,8 +58,8 @@ public class DatabasePlayerDao implements PlayerDao {
 
     @Override
     public void editPlayer(Long id, Player player) {
-        int raceId = getRaceId(player.getName());
-        int professionId = getProfessionId(player.getName());
+        int raceId = getRaceId(player.getRace().name());
+        int professionId = getProfessionId(player.getProfession().name());
         String sql = "UPDATE players SET name = ?, title = ?, race_id = ? , profession_id = ?, experience = ?, level = ?, until_next_level = ?, birthday = ?, banned = ? WHERE id = ?";
         jdbcTemplate.update(sql, player.getName(), player.getTitle(), raceId, professionId,
                 player.getExperience(), player.getLevel(), player.getUntilNextLevel(), player.getBirthday(), player.getBanned(), id);
@@ -76,28 +77,26 @@ public class DatabasePlayerDao implements PlayerDao {
     public Player getPlayerById(long id) {
         String sql = "SELECT players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned  " +
                 "FROM players INNER JOIN race on players.race_id = race.id " +
-                "INNER JOIN profession on players.profession_id = profession.id" +
-                "WHERE id = ?";
+                "INNER JOIN profession on players.profession_id = profession.id WHERE players.id = ?";
         return jdbcTemplate.queryForObject(sql , new PlayerMapper(), id);
     }
 
     @Override
     public List<Player> getPlayersByFilter(Filter filter) {
-//        String conditionName = (new StringBuilder(filter.getName())).insert(0, "%").append("%").toString();
         Map<String, Object> values = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder
                 .select("players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned")
                 .from("players INNER JOIN race on players.race_id = race.id INNER JOIN profession on players.profession_id = profession.id");
         if (filter.getName() != null) {
-//            sqlBuilder.where("name LIKE");
-            sqlBuilder.where("name = :name");
-            values.put("name", filter.getName());
+            String conditionName = (new StringBuilder(filter.getName())).insert(0, "%").append("%").toString();
+            sqlBuilder.where("players.name ILIKE :name");
+            values.put("name", conditionName);
         }
         if (filter.getTitle() != null) {
-            sqlBuilder.where("title = :title");
-
-            values.put("title", filter.getTitle());
+            String conditionTitle = (new StringBuilder(filter.getTitle())).insert(0, "%").append("%").toString();
+            sqlBuilder.where("title ILIKE :title");
+            values.put("title", conditionTitle);
         }
         if (filter.getRace() != null) {
             sqlBuilder.where("race.name = :raceName");
@@ -138,11 +137,16 @@ public class DatabasePlayerDao implements PlayerDao {
             values.put("banned", filter.getBanned());
         }
         String sql = sqlBuilder.build();
-        return namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
+        List<Player> queryResult = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
+        return queryResult.stream()
+                .sorted(new PlayerComparator(filter))
+                .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber()) * filter.getPageSize()))
+                .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
+                .toList();
     }
 
     @Override
-    public void clear() {
+    public void clear()  {
         jdbcTemplate.update("DELETE FROM players");
     }
 

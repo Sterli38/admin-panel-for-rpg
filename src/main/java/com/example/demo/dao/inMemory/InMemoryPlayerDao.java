@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(name = "application.save.mode", havingValue = "inMemory")
 @Repository
 public class InMemoryPlayerDao implements PlayerDao {
-
     private final HashMap<Long, Player> players = new HashMap<>();
     private long idGenerator = 0;
 
@@ -74,7 +73,7 @@ public class InMemoryPlayerDao implements PlayerDao {
     public List<Player> getPlayersByFilter(Filter filter) {
         return players.values().stream()
                 .filter(player -> filter.getName() == null || Pattern.compile(Pattern.quote(filter.getName()), Pattern.CASE_INSENSITIVE).matcher(player.getName()).find())
-                .filter(player -> filter.getTitle() == null || player.getTitle().equals(filter.getTitle()))
+                .filter(player -> filter.getTitle() == null || Pattern.compile(Pattern.quote(filter.getTitle()), Pattern.CASE_INSENSITIVE).matcher(player.getTitle()).find())
                 .filter(player -> filter.getRace() == null || player.getRace() == filter.getRace())
                 .filter(player -> filter.getProfession() == null || player.getProfession() == filter.getProfession())
                 .filter(player -> filter.getAfter() == null && filter.getBefore() == null ||
