@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public abstract class PlayerDaoTest<T extends PlayerDao> {
@@ -29,9 +30,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         player.setRace(Race.HUMAN);
         player.setProfession(Profession.WARRIOR);
         player.setExperience(2000);
-        player.setLevel(5);
-        player.setUntilNextLevel(200);
-        player.setBirthday(1679935186L);
+        player.setLevel(6);
+        player.setUntilNextLevel(100);
+        player.setBirthday(new Date(1679935186000L));
         player.setBanned(false);
         playerDao.createPlayer(player);
         player1 = new Player();
@@ -40,9 +41,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         player1.setRace(Race.HUMAN);
         player1.setProfession(Profession.WARRIOR);
         player1.setExperience(2000);
-        player1.setLevel(5);
-        player1.setUntilNextLevel(200);
-        player1.setBirthday(1679935188L);
+        player1.setLevel(6);
+        player1.setUntilNextLevel(100);
+        player1.setBirthday(new Date(1679935188000L));
         player1.setBanned(true);
         playerDao.createPlayer(player1);
     }
@@ -63,9 +64,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer.setRace(Race.HUMAN);
         expectedPlayer.setProfession(Profession.WARRIOR);
         expectedPlayer.setExperience(2000);
-        expectedPlayer.setLevel(5);
-        expectedPlayer.setUntilNextLevel(200);
-        expectedPlayer.setBirthday(1679935186L);
+        expectedPlayer.setLevel(6);
+        expectedPlayer.setUntilNextLevel(100);
+        expectedPlayer.setBirthday(new Date(1679935186000L));
         expectedPlayer.setBanned(false);
         Player expectedPlayer1 = new Player();
         expectedPlayer1.setId(1L);
@@ -74,9 +75,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer1.setRace(Race.HUMAN);
         expectedPlayer1.setProfession(Profession.WARRIOR);
         expectedPlayer1.setExperience(2000);
-        expectedPlayer1.setLevel(5);
-        expectedPlayer1.setUntilNextLevel(200);
-        expectedPlayer1.setBirthday(1679935188L);
+        expectedPlayer1.setLevel(6);
+        expectedPlayer1.setUntilNextLevel(100);
+        expectedPlayer1.setBirthday(new Date(1679935188000L));
         expectedPlayer1.setBanned(true);
         expected.add(expectedPlayer);
         expected.add(expectedPlayer1);
@@ -91,9 +92,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer.setRace(Race.HUMAN);
         expectedPlayer.setProfession(Profession.WARRIOR);
         expectedPlayer.setExperience(5500);
-        expectedPlayer.setLevel(6);
-        expectedPlayer.setUntilNextLevel(200);
-        expectedPlayer.setBirthday(1679935186L);
+        expectedPlayer.setLevel(11);
+        expectedPlayer.setUntilNextLevel(2300);
+        expectedPlayer.setBirthday(new Date(1679935186000L));
         expectedPlayer.setBanned(true);
         Player newPLayer = new Player();
         newPLayer.setName("Michael");
@@ -101,9 +102,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         newPLayer.setRace(Race.HUMAN);
         newPLayer.setProfession(Profession.WARRIOR);
         newPLayer.setExperience(5500);
-        newPLayer.setLevel(6);
-        newPLayer.setUntilNextLevel(200);
-        newPLayer.setBirthday(1679935186L);
+        newPLayer.setLevel(11);
+        newPLayer.setUntilNextLevel(2300);
+        newPLayer.setBirthday(new Date(1679935186000L));
         newPLayer.setBanned(true);
         Player player2 = playerDao.createPlayer(newPLayer);
         expectedPlayer.setId(player2.getId());
@@ -119,9 +120,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         newPlayerData.setRace(Race.HUMAN);
         newPlayerData.setProfession(Profession.WARRIOR);
         newPlayerData.setExperience(5500);
-        newPlayerData.setLevel(6);
-        newPlayerData.setUntilNextLevel(200);
-        newPlayerData.setBirthday(1679935186L);
+        newPlayerData.setLevel(11);
+        newPlayerData.setUntilNextLevel(2300);
+        newPlayerData.setBirthday(new Date(1679935186000L));
         newPlayerData.setBanned(true);
         Player expectedPlayer = newPlayerData;
         playerDao.editPlayer(0L, newPlayerData);
@@ -143,9 +144,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer.setRace(Race.HUMAN);
         expectedPlayer.setProfession(Profession.WARRIOR);
         expectedPlayer.setExperience(2000);
-        expectedPlayer.setLevel(5);
-        expectedPlayer.setUntilNextLevel(200);
-        expectedPlayer.setBirthday(1679935186L);
+        expectedPlayer.setLevel(6);
+        expectedPlayer.setUntilNextLevel(100);
+        expectedPlayer.setBirthday(new Date(1679935186000L));
         expectedPlayer.setBanned(false);
         Assertions.assertEquals(expectedPlayer, playerDao.getPlayerById(0));
     }
@@ -159,9 +160,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer.setRace(Race.HUMAN);
         expectedPlayer.setProfession(Profession.WARRIOR);
         expectedPlayer.setExperience(2000);
-        expectedPlayer.setLevel(5);
-        expectedPlayer.setUntilNextLevel(200);
-        expectedPlayer.setBirthday(1679935186L);
+        expectedPlayer.setLevel(6);
+        expectedPlayer.setUntilNextLevel(100);
+        expectedPlayer.setBirthday(new Date(1679935186000L));
         expectedPlayer.setBanned(false);
 
         Player expectedPlayer1 = new Player();
@@ -171,9 +172,9 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
         expectedPlayer1.setRace(Race.HUMAN);
         expectedPlayer1.setProfession(Profession.WARRIOR);
         expectedPlayer1.setExperience(2000);
-        expectedPlayer1.setLevel(5);
-        expectedPlayer1.setUntilNextLevel(200);
-        expectedPlayer1.setBirthday(1679935188L);
+        expectedPlayer1.setLevel(6);
+        expectedPlayer1.setUntilNextLevel(100);
+        expectedPlayer1.setBirthday(new Date(1679935188000L));
         expectedPlayer1.setBanned(true);
 
 
@@ -206,8 +207,8 @@ public abstract class PlayerDaoTest<T extends PlayerDao> {
 
         List<Player> expected4 = new ArrayList<>();
         Filter filter4 = new Filter();
-        filter4.setAfter(1679591394L);
-        filter4.setBefore(1680109794L);
+        filter4.setAfter(new Date(1679591394000L));
+        filter4.setBefore(new Date(1680109794000L));
         expected4.add(expectedPlayer);
         expected4.add(expectedPlayer1);
         Assertions.assertEquals(expected4, playerDao.getPlayersByFilter(filter4));

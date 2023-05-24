@@ -4,9 +4,7 @@ import com.example.demo.entity.Profession;
 import com.example.demo.entity.Race;
 import lombok.Data;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
+import java.util.Date;
 
 @Data
 public class Filter {
@@ -14,8 +12,8 @@ public class Filter {
     private String title;
     private Race race;
     private Profession profession;
-    private Long after;
-    private Long before;
+    private Date after;
+    private Date before;
     private Boolean banned;
     private Integer minExperience;
     private Integer maxExperience;

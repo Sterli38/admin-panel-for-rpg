@@ -1,15 +1,13 @@
-package com.example.demo.entity;
+package com.example.demo.controller.response;
 
-import lombok.AllArgsConstructor;
+import com.example.demo.entity.Profession;
+import com.example.demo.entity.Race;
 import lombok.Data;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
-import java.util.TimeZone;
 
 @Data
-public class Player {
+public class PlayerResponse {
     private Long id;
     private String name;
     private String title;
@@ -18,6 +16,6 @@ public class Player {
     private Integer experience;
     private Integer level;
     private Integer untilNextLevel;
-    private Date birthday;
+    private Long birthday;
     private Boolean banned;
 }
