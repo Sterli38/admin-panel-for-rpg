@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles("test")
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PanelControllerTest {
@@ -78,12 +78,9 @@ public class PanelControllerTest {
 
     @BeforeEach
     public void addPlayer() {
-        service.createPlayer(playerVasiliy);
-        service.createPlayer(playerGeorgy);
-        service.createPlayer(playerLena);
-        idVasiliy = playerVasiliy.getId();
-        idGeorgy = playerGeorgy.getId();
-        idLena = playerLena.getId();
+        idVasiliy = service.createPlayer(playerVasiliy).getId();
+        idGeorgy = service.createPlayer(playerGeorgy).getId();
+        idLena = service.createPlayer(playerLena).getId();
     }
 
     @AfterEach
