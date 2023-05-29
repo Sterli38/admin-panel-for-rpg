@@ -81,6 +81,10 @@ public class PanelControllerTest {
         idVasiliy = service.createPlayer(playerVasiliy).getId();
         idGeorgy = service.createPlayer(playerGeorgy).getId();
         idLena = service.createPlayer(playerLena).getId();
+        Long id = playerVasiliy.getId();
+//        playerVasiliy.setId(idVasiliy);
+//        playerGeorgy.setId(idGeorgy);
+//        playerLena.setId(idLena);
     }
 
     @AfterEach

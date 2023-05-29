@@ -16,7 +16,6 @@ public class SqlBuilder {
     public SqlBuilder from(String tables) { // Откуда выбираем
         sql.append(" FROM ");
         sql.append(tables);
-
         return this;
     }
 
@@ -25,10 +24,15 @@ public class SqlBuilder {
         return this;
     }
 
+    public SqlBuilder condition(String condition, String clause) {
+        sql.append(condition);
+        sql.append(clause);
+        return this;
+    }
+
     public String build() { // Строим запрос
         if (clauses.size() > 0) {
             sql.append(" WHERE ");
-
             for (int i = 0; i < clauses.size(); i++) {
                 if (i != clauses.size() - 1) {
                     sql.append(clauses.get(i)).append(" and ");
@@ -37,7 +41,6 @@ public class SqlBuilder {
                 }
             }
         }
-
         return sql.toString();
     }
 }

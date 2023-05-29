@@ -51,7 +51,6 @@ public class DatabasePlayerDao implements PlayerDao {
             ps.setBoolean(9, player.getBanned());
             return ps;
         }, keyHolder);
-
         Player player1 = getPlayerById(keyHolder.getKey().longValue());
         return player1;
     }
@@ -78,7 +77,7 @@ public class DatabasePlayerDao implements PlayerDao {
         String sql = "SELECT players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned  " +
                 "FROM players INNER JOIN race on players.race_id = race.id " +
                 "INNER JOIN profession on players.profession_id = profession.id WHERE players.id = ?";
-        return jdbcTemplate.queryForObject(sql , new PlayerMapper(), id);
+        return jdbcTemplate.queryForObject(sql, new PlayerMapper(), id);
     }
 
     @Override
@@ -130,19 +129,24 @@ public class DatabasePlayerDao implements PlayerDao {
         if (filter.getBefore() != null) {
             sqlBuilder.where("birthday <= :before");
             values.put("before", filter.getBefore());
-
         }
         if (filter.getBanned() != null) {
             sqlBuilder.where("banned = :banned");
             values.put("banned", filter.getBanned());
         }
         String sql = sqlBuilder.build();
-        List<Player> queryResult = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
-        return queryResult.stream()
-                .sorted(new PlayerComparator(filter))
-                .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber()) * filter.getPageSize()))
-                .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
-                .toList();
+        if(filter.getOrder() != null) {
+            sqlBuilder.condition(" ORDER BY ", filter.getOrder().name());
+        }
+        if(filter.getPageNumber() != null) {
+            int condition = filter.getPageNumber() * filter.getPageSize();
+            sqlBuilder.condition(" OFFSET ", String.valueOf(condition));
+        }
+        if(filter.getPageSize() != null) {
+            sqlBuilder.condition(" LIMIT " , String.valueOf(filter.getPageSize()));
+        }
+        List<Player> players = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
+        return players;
     }
 
     @Override
