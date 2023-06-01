@@ -47,7 +47,7 @@ public class DatabasePlayerDao implements PlayerDao {
             ps.setLong(5, player.getExperience());
             ps.setLong(6, player.getLevel());
             ps.setLong(7, player.getUntilNextLevel());
-            ps.setDate(8, new Date(player.getBirthday().getTime()));
+            ps.setTimestamp(8, new Timestamp(player.getBirthday().getTime()));
             ps.setBoolean(9, player.getBanned());
             return ps;
         }, keyHolder);
@@ -120,7 +120,6 @@ public class DatabasePlayerDao implements PlayerDao {
         if (filter.getMaxLevel() != null) {
             sqlBuilder.where("level <= :maxLevel");
             values.put("maxLevel", filter.getMaxLevel());
-
         }
         if (filter.getAfter() != null) {
             sqlBuilder.where("birthday >= :after");
@@ -134,23 +133,24 @@ public class DatabasePlayerDao implements PlayerDao {
             sqlBuilder.where("banned = :banned");
             values.put("banned", filter.getBanned());
         }
-        String sql = sqlBuilder.build();
-        if(filter.getOrder() != null) {
+        sqlBuilder.build();
+        if (filter.getOrder() != null) {
             sqlBuilder.condition(" ORDER BY ", filter.getOrder().name());
         }
-        if(filter.getPageNumber() != null) {
+        if (filter.getPageSize() != null) {
+            sqlBuilder.condition(" LIMIT ", String.valueOf(filter.getPageSize()));
+        }
+        if (filter.getPageNumber() != null) {
             int condition = filter.getPageNumber() * filter.getPageSize();
             sqlBuilder.condition(" OFFSET ", String.valueOf(condition));
         }
-        if(filter.getPageSize() != null) {
-            sqlBuilder.condition(" LIMIT " , String.valueOf(filter.getPageSize()));
-        }
+        String sql = sqlBuilder.getSQL();
         List<Player> players = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
         return players;
     }
 
     @Override
-    public void clear()  {
+    public void clear() {
         jdbcTemplate.update("DELETE FROM players");
     }
 

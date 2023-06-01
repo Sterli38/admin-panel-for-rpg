@@ -39,6 +39,6 @@ CREATE TABLE players
     experience       int CHECK (experience < 10000000) NOT NULL,
     level            int                               NOT NULL,
     until_next_level int                               NOT NULL,
-    birthday         date                              NOT NULL,
+    birthday         timestamp                         NOT NULL,
     banned           boolean                           NOT NULL
 );

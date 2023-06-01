@@ -81,10 +81,9 @@ public class PanelControllerTest {
         idVasiliy = service.createPlayer(playerVasiliy).getId();
         idGeorgy = service.createPlayer(playerGeorgy).getId();
         idLena = service.createPlayer(playerLena).getId();
-        Long id = playerVasiliy.getId();
-//        playerVasiliy.setId(idVasiliy);
-//        playerGeorgy.setId(idGeorgy);
-//        playerLena.setId(idLena);
+        playerVasiliy.setId(idVasiliy);
+        playerGeorgy.setId(idGeorgy);
+        playerLena.setId(idLena);
     }
 
     @AfterEach
@@ -212,7 +211,7 @@ public class PanelControllerTest {
     public void updatePlayerTest() throws Exception {
         Player playerGeorgyClone = new Player();
         Player updateForPlayer = new Player();
-        playerGeorgyClone.setId(Long.MAX_VALUE);
+        playerGeorgyClone.setId(playerGeorgy.getId());
         playerGeorgyClone.setName(playerGeorgy.getName());
         playerGeorgyClone.setTitle(playerGeorgy.getTitle());
         playerGeorgyClone.setRace(playerGeorgy.getRace());
