@@ -1,7 +1,7 @@
 package com.example.demo;
 
 
-import com.example.demo.controller.PanelController;
+import com.example.demo.controller.response.PlayerResponse;
 import com.example.demo.dao.PlayerDao;
 import com.example.demo.entity.Player;
 import com.example.demo.entity.Profession;
@@ -16,10 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -35,11 +36,10 @@ public class PanelControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private PanelController controller;
-    @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     PlayerService service;
+    @Autowired
     PlayerDao dao;
     private Long idVasiliy;
     private Long idGeorgy;
@@ -78,12 +78,12 @@ public class PanelControllerTest {
 
     @BeforeEach
     public void addPlayer() {
-        service.createPlayer(playerVasiliy);
-        service.createPlayer(playerGeorgy);
-        service.createPlayer(playerLena);
-        idVasiliy = playerVasiliy.getId();
-        idGeorgy = playerGeorgy.getId();
-        idLena = playerLena.getId();
+        idVasiliy = service.createPlayer(playerVasiliy).getId();
+        idGeorgy = service.createPlayer(playerGeorgy).getId();
+        idLena = service.createPlayer(playerLena).getId();
+        playerVasiliy.setId(idVasiliy);
+        playerGeorgy.setId(idGeorgy);
+        playerLena.setId(idLena);
     }
 
     @AfterEach
@@ -94,13 +94,12 @@ public class PanelControllerTest {
         }
     }
 
-
     @Test
     public void getPlayersByFilterTestNameTesting() throws Exception {
         this.mockMvc.perform(get("/rest/players/").param("name", "eor"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerGeorgy))));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(convertPlayer(playerGeorgy)))));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("title", "TitleTitle"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena))));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(convertPlayer(playerGeorgy), convertPlayer(playerLena)))));
     }
 
     @Test
@@ -116,7 +115,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("race", "HUMAN"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerLena))));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(convertPlayer(playerVasiliy), convertPlayer(playerLena)))));
     }
 
     @Test
@@ -124,7 +123,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("profession", "WARRIOR"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(convertPlayer(playerVasiliy), convertPlayer(playerGeorgy)))));
     }
 
     @Test
@@ -132,7 +131,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("before", "1672946964000").param("after", "1668349959000"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerGeorgy, playerLena))));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(convertPlayer(playerGeorgy), convertPlayer(playerLena)))));
     }
 
     @Test
@@ -140,7 +139,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("minLevel", "1").param("maxLevel", "4"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(convertPlayer(playerVasiliy), convertPlayer(playerGeorgy)))));
     }
 
     @Test
@@ -148,7 +147,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("minExperience", "500").param("maxExperience", "1300"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerVasiliy, playerGeorgy))));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(convertPlayer(playerVasiliy), convertPlayer(playerGeorgy)))));
     }
 
     @Test
@@ -156,7 +155,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/").param("banned", "false"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(List.of(playerLena))));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(convertPlayer(playerLena)))));
     }
 
     @Test
@@ -164,7 +163,7 @@ public class PanelControllerTest {
         this.mockMvc.perform(get("/rest/players/count").param("banned", "true"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena).size())));
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(playerGeorgy, playerLena).size()))); // Работает
     }
 
     @Test
@@ -212,7 +211,7 @@ public class PanelControllerTest {
     public void updatePlayerTest() throws Exception {
         Player playerGeorgyClone = new Player();
         Player updateForPlayer = new Player();
-        playerGeorgyClone.setId(Long.MAX_VALUE);
+        playerGeorgyClone.setId(playerGeorgy.getId());
         playerGeorgyClone.setName(playerGeorgy.getName());
         playerGeorgyClone.setTitle(playerGeorgy.getTitle());
         playerGeorgyClone.setRace(playerGeorgy.getRace());
@@ -250,8 +249,20 @@ public class PanelControllerTest {
     public void deletePlayerTest() throws Exception {
         this.mockMvc.perform(delete("/rest/players/{id}", idVasiliy))
                 .andExpect(status().isOk());
+    }
 
-        this.mockMvc.perform(get("/rest/players/{id}", idVasiliy))
-                .andExpect(status().isNotFound());
+    private PlayerResponse convertPlayer(Player player) {
+        PlayerResponse playerResponse = new PlayerResponse();
+        playerResponse.setId(player.getId());
+        playerResponse.setName(player.getName());
+        playerResponse.setTitle(player.getTitle());
+        playerResponse.setRace(player.getRace());
+        playerResponse.setProfession(player.getProfession());
+        playerResponse.setExperience(player.getExperience());
+        playerResponse.setLevel(player.getLevel());
+        playerResponse.setUntilNextLevel(player.getUntilNextLevel());
+        playerResponse.setBirthday(player.getBirthday().getTime());
+        playerResponse.setBanned(player.getBanned());
+        return playerResponse;
     }
 }

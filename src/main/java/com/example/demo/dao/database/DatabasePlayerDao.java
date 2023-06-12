@@ -47,11 +47,10 @@ public class DatabasePlayerDao implements PlayerDao {
             ps.setLong(5, player.getExperience());
             ps.setLong(6, player.getLevel());
             ps.setLong(7, player.getUntilNextLevel());
-            ps.setDate(8, new Date(player.getBirthday().getTime()));
+            ps.setTimestamp(8, new Timestamp(player.getBirthday().getTime()));
             ps.setBoolean(9, player.getBanned());
             return ps;
         }, keyHolder);
-
         Player player1 = getPlayerById(keyHolder.getKey().longValue());
         return player1;
     }
@@ -78,7 +77,7 @@ public class DatabasePlayerDao implements PlayerDao {
         String sql = "SELECT players.id, players.name, title, race.name as raceName, profession.name as professionName, experience, level, until_next_Level, birthday, banned  " +
                 "FROM players INNER JOIN race on players.race_id = race.id " +
                 "INNER JOIN profession on players.profession_id = profession.id WHERE players.id = ?";
-        return jdbcTemplate.queryForObject(sql , new PlayerMapper(), id);
+        return jdbcTemplate.queryForObject(sql, new PlayerMapper(), id);
     }
 
     @Override
@@ -121,7 +120,6 @@ public class DatabasePlayerDao implements PlayerDao {
         if (filter.getMaxLevel() != null) {
             sqlBuilder.where("level <= :maxLevel");
             values.put("maxLevel", filter.getMaxLevel());
-
         }
         if (filter.getAfter() != null) {
             sqlBuilder.where("birthday >= :after");
@@ -130,23 +128,29 @@ public class DatabasePlayerDao implements PlayerDao {
         if (filter.getBefore() != null) {
             sqlBuilder.where("birthday <= :before");
             values.put("before", filter.getBefore());
-
         }
         if (filter.getBanned() != null) {
             sqlBuilder.where("banned = :banned");
             values.put("banned", filter.getBanned());
         }
-        String sql = sqlBuilder.build();
-        List<Player> queryResult = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
-        return queryResult.stream()
-                .sorted(new PlayerComparator(filter))
-                .skip(filter.getPageNumber() == null || filter.getPageSize() == null ? 0 : (long) Math.abs((filter.getPageNumber()) * filter.getPageSize()))
-                .limit(filter.getPageSize() == null ? Long.MAX_VALUE : filter.getPageSize())
-                .toList();
+        sqlBuilder.build();
+        if (filter.getOrder() != null) {
+            sqlBuilder.condition(" ORDER BY ", filter.getOrder().name());
+        }
+        if (filter.getPageSize() != null) {
+            sqlBuilder.condition(" LIMIT ", String.valueOf(filter.getPageSize()));
+        }
+        if (filter.getPageNumber() != null) {
+            int condition = filter.getPageNumber() * filter.getPageSize();
+            sqlBuilder.condition(" OFFSET ", String.valueOf(condition));
+        }
+        String sql = sqlBuilder.getSQL();
+        List<Player> players = namedParameterJdbcTemplate.query(sql, values, new PlayerMapper());
+        return players;
     }
 
     @Override
-    public void clear()  {
+    public void clear() {
         jdbcTemplate.update("DELETE FROM players");
     }
 
